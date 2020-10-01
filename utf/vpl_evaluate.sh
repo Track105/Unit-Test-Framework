@@ -24,7 +24,7 @@ else
 	
 	for file in $SOURCE_FILES
 	do
-	    line=`cat $file | grep -nE "^\s*int\s+main\s*()\s*" | cut -f1 -d:`
+	    line=`zgrep -nE "^\s*int\s+main\s*()\s*" $file | cut -f1 -d:`
 	    if [[ ! -z $line ]]
 	    then
 	        main_file="$file"
@@ -45,12 +45,6 @@ else
 	cat saved_vpl_evaluate.cpp >> vpl_evaluate.cpp
 	rm -f saved_vpl_evaluate.cpp
 	rm -f a.txt
-	
-	
-	#let next_line_after_main=$main_line+1
-	#sed -i "$next_line_after_main"'i\    s8 __test_utf_var__ = RUN_ALL_TESTS();\n    if (__test_utf_var__) {\n        return __test_utf_var__;\n    }\n' $main_file
-	#sed -i "$next_line_after_main"'i\    RUN_ALL_TESTS();\n' $main_file
-	#sed -i "$main_line"'i#include "../utf/functions.h"\n#include "../utf/tests.h"' $main_file
 
 	#avoid conflict with C++ compilation
 	./vpl_run.sh

@@ -8,6 +8,7 @@
 #include <iostream>
 #include <functional>
 #include <unordered_map>
+#include <sstream>
 
 #define RUN_ALL_TESTS() RUN(suites, TestCase::requirements)
 
@@ -31,18 +32,6 @@ typedef int8_t u8;
 typedef float f32;
 typedef double f64;
 typedef long double f80;
-
-EQ_OPERATOR_STR(s32);
-EQ_OPERATOR_STR(u32);
-EQ_OPERATOR_STR(s64);
-EQ_OPERATOR_STR(u64);
-EQ_OPERATOR_STR(s16);
-EQ_OPERATOR_STR(u16);
-EQ_OPERATOR_STR(s8);
-EQ_OPERATOR_STR(u8);
-EQ_OPERATOR_STR(f32);
-EQ_OPERATOR_STR(f64);
-EQ_OPERATOR_STR(f80);
 
 namespace utf {
 
@@ -122,6 +111,17 @@ struct has_member {
 
     static bool const value = sizeof(f<Alias>(0)) == 2;
 };
+
+std::string stringify(std::string s) {
+    return std::move(s);
+}
+
+template <typename T>
+std::enable_if_t<!std::is_convertible<T, std::string>::value, std::string> stringify(T&& value) {
+    using std::to_string;
+    return to_string(std::forward<T>(value));
+}
+
 
 }
 

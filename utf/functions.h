@@ -13,22 +13,22 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
     constexpr void __##suite_name##__##test_name(utf::Holder<T> *holder)
 
 #define ASSERT_EQUAL(first_operand, second_operand, message)                                                                                                                    \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "==", T(first_operand), T(second_operand), first_operand == second_operand })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "==", T(first_operand), T(second_operand), utf::stringify(first_operand) == utf::stringify(second_operand) })
 
 #define ASSERT_NOT_EQUAL(first_operand, second_operand, message)                                                                                                                \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "!=", T(first_operand), T(second_operand), first_operand != second_operand })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "!=", T(first_operand), T(second_operand), utf::stringify(first_operand) == utf::stringify(second_operand) })
 
 #define ASSERT_GREATER(first_operand, second_operand, message)                                                                                                                  \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", ">", T(first_operand), T(second_operand), first_operand > second_operand })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", ">", T(first_operand), T(second_operand), utf::stringify(first_operand) == utf::stringify(second_operand) })
 
 #define ASSERT_LESS(first_operand, second_operand, message)                                                                                                                     \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "<", T(first_operand), T(second_operand), first_operand < second_operand })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "<", T(first_operand), T(second_operand), utf::stringify(first_operand) == utf::stringify(second_operand) })
 
 #define ASSERT_GREATER_OR_EQUAL(first_operand, second_operand, message)                                                                                                         \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", ">=", T(first_operand), T(second_operand), first_operand >= second_operand })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", ">=", T(first_operand), T(second_operand), utf::stringify(first_operand) == utf::stringify(second_operand) })
 
 #define ASSERT_LESS_OR_EQUAL(first_operand, second_operand, message)                                                                                                            \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "<=", T(first_operand), T(second_operand), first_operand <= second_operand })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "<=", T(first_operand), T(second_operand), utf::stringify(first_operand) == utf::stringify(second_operand) })
     
 #define ASSERT_FUNCTION(function_name, message)                                                                                                                                 \
 	if (!function_name) {                                                                                                                                                       \

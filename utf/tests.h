@@ -8,10 +8,10 @@ CLASS(Test);
 	@function    CHECK_CLASS_ATTRIBUTE            Create a tester for an attribute in any class.
 	@param       attribute_name                   Name of the attribute which need to be tested.
 	
-	@note                                         This function creates a function called '__check_attribute_##attribute_name##__'.
+	@note                                         1) This function creates a function called '__check_attribute_##attribute_name##__'.
 												  With this function we can get values from our attributes from a class because
 												  we can't use the standard way. This function needs only one parameters, the address
-												  of a class object.
+												  of a class object. Use 'auto' keyword to store the value of the attribute.
 */
 CHECK_CLASS_ATTRIBUTE(tmp);
 CHECK_CLASS_ATTRIBUTE(ftmp);
@@ -20,10 +20,11 @@ CHECK_CLASS_ATTRIBUTE(ftmp);
 	@function    CHECK_CLASS_METHOD               Create a tester for a method in any class.
 	@param       method_name                      Name of the method which need to be tested.
 	
-	@note                                         This function creates a function called '__check_method_##method_name##__'.
+	@note                                         1) This function creates a function called '__check_method_##method_name##__'.
 												  With this function we can get return values from our methods from a class because
 												  we can't use the standard way. First parameter of this function is the address
 												  of a class object. Then, we need to pass the parameters of the method if they exist.
+												  Use 'auto' keyword to store the value of the return value of method.
 */
 CHECK_CLASS_METHOD(print);
 CHECK_CLASS_METHOD(sum);
@@ -34,21 +35,21 @@ CHECK_CLASS_METHOD(sum);
 	@param       signature                        Signature for method to be checked.
 	@param       template_postfix                 It can be any valid name.
 	
-	@note                                         Signature of the method need to be in function pointer format, but
-												  instead of a '*' you need to put 'T::*'
+	@note                                         1) Signature of the method need to be in function pointer format, but
+												  instead of a '*' you need to put 'T::*'.
 */
 CHECK_CLASS_METHOD_SIGNATURE(print, void (T::*)(), rv_print_);
 CHECK_CLASS_METHOD_SIGNATURE(sum, int (T::*)(int, int), ri_sum_ii);
 
 /**
-	When you try to check if a function is defined or it has a given signature, then you need to define
+	If you try to check if a function is defined or it has a given signature, then you need to declare
 	it and also you need to put the weak atttribute.
 */
 int multiply(int, int) __attribute__((weak));
 
 /**
 	@function    TEST                             Create a test which need to be passed as REQUIRED parameter in test file (vpl_evaluate.cases).
-	@param       suite_name                       Name of the suite (it names something big to be tested). 
+	@param       suite_name                       Name of the suite (it names something big to be tested).
 	@param       test_name                        Name of the test (it names a subclass of a suite).
 */
 TEST(Function, Name_multiply) {
@@ -65,7 +66,7 @@ TEST(Function, Name_multiply) {
 			@param       signature                        Signature for function to be checked.
 			@param       message                          Message to be printed if something goes wrong.
 			
-			@note                                         Signature of the function need to be in function pointer format.
+			@note                                         1) Signature of the function need to be in function pointer format.
 		*/
     	ASSERT_FUNCTION_SIGNATURE(multiply, int(*)(int, int), "Function 'multiply' DOES NOT have the given signature!") {
     		int i_val = 3;
@@ -96,10 +97,10 @@ TEST(Class_Test, Class_Existance) {
 		@function    ASSERT_CLASS                     Checks if a class has been defined.
 		@param       class_name                       Name of the class to be checked. 
 		@param       message                          Message to be printed if something goes wrong.
+		
+		@note                                         1) Function needs to end with END; statement.
 	*/
-	ASSERT_CLASS(Test, "Class 'Test' HAS NOT BEEN defined!") {
-	
-	} END;
+	ASSERT_CLASS(Test, "Class 'Test' HAS NOT BEEN defined!") { /* code */ } END;
 	
 }
 
@@ -111,15 +112,11 @@ TEST(Class_Test, Attributes_tmp_ftmp_Existance) {
 		@param       attribute_name                   Name of the attribute in class 'class_name' to be checked. 
 		@param       message                          Message to be printed if something goes wrong.
 		
-		@note                                         This function depends on CHECK_CLASS_ATTRIBUTE function.
+		@note                                         1) This function depends on CHECK_CLASS_ATTRIBUTE function.
+													  2) Function needs to end with END; statement.
 	*/
-	ASSERT_CLASS_ATTRIBUTE(Test, tmp, "Class 'Test' HAS NOT 'tmp' attribute!") {
-	
-	} END;
-	
-	ASSERT_CLASS_ATTRIBUTE(Test, ftmp, "Class 'Test' HAS NOT 'ftmp' attribute!") {
-	
-	} END;
+	ASSERT_CLASS_ATTRIBUTE(Test, tmp, "Class 'Test' HAS NOT 'tmp' attribute!") { /* code */ } END;
+	ASSERT_CLASS_ATTRIBUTE(Test, ftmp, "Class 'Test' HAS NOT 'ftmp' attribute!") { /* code */ } END;
 	
 }
 
@@ -131,15 +128,11 @@ TEST(Class_Test, Methods_print_sum_Existance) {
 		@param       method_name                      Name of the method in class 'class_name' to be checked. 
 		@param       message                          Message to be printed if something goes wrong.
 		
-		@note                                         This function depends on CHECK_CLASS_METHOD function.
+		@note                                         1) This function depends on CHECK_CLASS_METHOD function.
+													  2) Function needs to end with END; statement.
 	*/
-	ASSERT_CLASS_METHOD(Test, print, "Class 'Test' HAS NOT 'print' method!") {
-	
-	} END;
-	
-	ASSERT_CLASS_METHOD(Test, sum, "Class 'Test' HAS NOT 'sum' method!") {
-	
-	} END;
+	ASSERT_CLASS_METHOD(Test, print, "Class 'Test' HAS NOT 'print' method!") { /* code */ } END;
+	ASSERT_CLASS_METHOD(Test, sum, "Class 'Test' HAS NOT 'sum' method!") { /* code */ } END;
 	
 }
 
@@ -152,15 +145,11 @@ TEST(Class_Test, Methods_print_sum_Signatures) {
 		@param       template_postfix                 It can be any valid name, but need to be the same name when define CHECK_CLASS_METHOD_SIGNATURE.
 		@param       message                          Message to be printed if something goes wrong.
 		
-		@note                                         This function depends on CHECK_CLASS_METHOD_SIGNATURE function. 
+		@note                                         1) This function depends on CHECK_CLASS_METHOD_SIGNATURE function. 
+													  2) Function needs to end with END; statement.
 	*/		
-	ASSERT_CLASS_METHOD_SIGNATURE(Test, sum, ri_sum_ii, "Signature for method 'sum' in class 'Test' IS NOT correct!") {
-	
-	} END;
-	
-	ASSERT_CLASS_METHOD_SIGNATURE(Test, print, rv_print_, "Signature for method 'print' in class 'Test' IS NOT correct!") {
-	
-	} END;	
+	ASSERT_CLASS_METHOD_SIGNATURE(Test, sum, ri_sum_ii, "Signature for method 'sum' in class 'Test' IS NOT correct!") { /* code */ } END;
+	ASSERT_CLASS_METHOD_SIGNATURE(Test, print, rv_print_, "Signature for method 'print' in class 'Test' IS NOT correct!") { /* code */ } END;	
 		
 }
 
@@ -173,13 +162,14 @@ TEST(Class_Test, Default_Constructor) {
 		@param       __VA_ARGS__                      Type of parameters in the constructor. If default constructor
 													  is checked, then no parameters needed.
 													  
-		@note                                         Note that if we want to check values of an attribute or return value of
+		@note                                         1) Note that if we want to check values of an attribute or return value of
 													  a method, this can't be done in the standard way. To access an attribute or
 													  to get the value returned from a function we need to use special functions
 													  which our CHECK_CLASS_ATTRIBUTE and CHECK_CLASS_METHOD functions creates after
 													  we call them. Standard name of this functions are '__check_attribute_##attribute_name##__'
 													  for attributes and '__check_method_##method_name##__' for methods, where attribute_name and
 													  method_name are the name of the attribute and method respectivly.
+													  2) Functions needs to end with END; statement.		
 	*/
 	ASSERT_CLASS_CONSTRUCTOR("Default constructor DOES NOT exist!", Test) {
 		Test test_default;
