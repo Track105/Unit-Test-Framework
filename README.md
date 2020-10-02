@@ -2,6 +2,9 @@
 
 In order to use this project, you need to know that files for creating tests are named tests.h and vpl_evaluate.cases, and the 'student' file is named main.cpp.
 
+## **Requirement**:
+Compiler that supports C++17 features.
+
 ## **Usage**: 
 If you are in project root directory, you need to run the following commands:
 ```
