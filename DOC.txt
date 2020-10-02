@@ -80,6 +80,9 @@
 	@function    ASSERT_FUNCTION                  Checks if a function has been defined.
 	@param       function_name                    Name of the function to be checked. 
 	@param       message                          Message to be printed if something goes wrong.
+	
+	@note                                         1) This function needs to begin with "BEGIN {".
+												  2) This function needs to end with "} END".
 **************************************************************************************************************************************************************************
 
 
@@ -93,6 +96,8 @@
 	@param       message                          Message to be printed if something goes wrong.
 	
 	@note                                         1) Signature of the function need to be in function pointer format.
+												  2) This function needs to begin with "BEGIN {".
+												  3) This function needs to end with "} END".
 **************************************************************************************************************************************************************************
 
 

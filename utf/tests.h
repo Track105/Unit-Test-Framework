@@ -21,15 +21,15 @@ int multiply(int, int) __attribute__((weak));
 
 TEST(Function, Name_multiply) {
 	
-    ASSERT_FUNCTION(multiply, "Function 'multiply' HAS NOT BEEN defined!") {
-    	ASSERT_FUNCTION_SIGNATURE(multiply, int(*)(int, int), "Function 'multiply' DOES NOT have the given signature!") {
+    ASSERT_FUNCTION(multiply, "Function 'multiply' HAS NOT BEEN defined!") BEGIN {
+    	ASSERT_FUNCTION_SIGNATURE(multiply, int(*)(int, int), "Function 'multiply' DOES NOT have the given signature!") BEGIN {
     		int i_val = 3;
     		int f_val = 2;
     		int result = multiply(i_val, f_val);
     		int expected_result = 6;
     		ASSERT_EQUAL(result, expected_result, "Function 'multiply' DOES NOT return the required result!");
-    	}
-    }
+    	} END
+    } END
     
 }
 

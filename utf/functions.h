@@ -40,12 +40,15 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 	if (!function_name) {                                                                                                                                                       \
 		holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0, false });                                                                      \
 	}                                                                                                                                                                           \
-	if (function_name)                                                                                                                       
+	if (function_name)                                                                                                                                                          \
+		utf::call_if_function_defined([&](){                                                                                                                      
 	
 #define ASSERT_FUNCTION_SIGNATURE(function_name, signature, message)                                                                                                            \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
 													  CHECK_FUNC_SIGNATURE(function_name, signature) == true });                                                                \
-	if (true)             
+	if (function_name)                                                                                                                                                          \
+		utf::call_if_function_defined([&]() {                                
+	            
 	
 #define ASSERT_CLASS_CONSTRUCTOR(message, class_name, ...)                                                                                                                      \
 	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
@@ -75,16 +78,13 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 	if constexpr (__class_##class_name##_has_method_##method_name##_with_##template_postfix##__)
 	
 #define ASSERT_CLASS(class_name, message)                                                                                                                                       \
-	ASSERT_CALL_CLASS(class_name) BEGIN {                                                                                                                                       \
-		holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                \
-									   __class_##class_name##_exists__ == true });                                                                                              \
-	} END                                                                                                                                                                       \
+	ASSERT_CALL_CLASS(class_name) BEGIN { } END                                                                                                                                 \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
 									   __class_##class_name##_exists__ == true });                                                                                              \
 	ASSERT_CALL_CLASS(class_name)
     
 #define ASSERT_CALL_CLASS(class_name)                                                                                                                                           \
-	utf::call_if_defined<struct class_name>([&](auto* p) {                                                                                                                      \
+	utf::call_if_class_defined<struct class_name>([&](auto* p) {                                                                                                                \
 		using class_name = std::decay_t<decltype(*p)>;                                                                                                                          \
 		__class_##class_name##_exists__ = true;
 
