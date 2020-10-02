@@ -35,6 +35,7 @@ const int MAXCOMMENTS = 20;
 const int MAXCOMMENTSLENGTH = 100*1024;
 const int MAXCOMMENTSTITLELENGTH = 1024;
 const int MAXOUTPUT = 256* 1024 ;//256Kb
+const char* TESTCASEFILE = "evaluate.cases";
 
 /**
  * Class Tools Declaration
@@ -1677,20 +1678,15 @@ void recursiveFindRequirementsAndDependencies(const std::vector<TestCase> &testC
 							   std::unordered_map<std::string, std::set<std::string>> &errorMessages) {
 	
 	for (int i = 0; i < testCase.req.size(); i++) {
-	
 		bool requirementPassed = TestCase::requirements[testCase.req[i]].first;
 		allRequirementsPassed &= requirementPassed;
-		
 	}
 	
 	for (int i = 0; i < testCase.depends.size(); i++) {
-	
 		const TestCase &dependency = *std::find_if(testCases.begin(), testCases.end(), [&](const TestCase &tc) {
 			return tc.getCaseDescription() == testCase.depends[i];
 		});
-		
 		recursiveFindRequirementsAndDependencies(testCases, dependency, requirements, allRequirementsPassed, errorMessages);
-		
 	}
 	
 }
@@ -1702,7 +1698,7 @@ int main(int argc, char *argv[], const char **env) {
 	setSignalsCatcher();
 	Evaluation* obj = Evaluation::getSinglenton();	
 	obj->loadParams();
-	obj->loadTestCases("evaluate.cases");
+	obj->loadTestCases(TESTCASEFILE);
 	obj->runTests();
 	obj->outputEvaluation();
 	return EXIT_SUCCESS;

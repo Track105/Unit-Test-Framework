@@ -1,3 +1,9 @@
+/**
+ * Unit Test Framework for compile time checking in VPL
+ * @Copyright (C) 2020 Andrei-Edward Popa
+ * @Author Andrei-Edward Popa <andrei_edward.popa@upb.ro>
+ */
+
 #ifndef __FUNCTIONS_H__
 #define __FUNCTIONS_H__
 
@@ -16,19 +22,19 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
     holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "==", T(first_operand), T(second_operand), utf::to_string(first_operand) == utf::to_string(second_operand) })
 
 #define ASSERT_NOT_EQUAL(first_operand, second_operand, message)                                                                                                                \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "!=", T(first_operand), T(second_operand), utf::to_string(first_operand) == utf::to_string(second_operand) })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "!=", T(first_operand), T(second_operand), utf::to_string(first_operand) != utf::to_string(second_operand) })
 
 #define ASSERT_GREATER(first_operand, second_operand, message)                                                                                                                  \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", ">", T(first_operand), T(second_operand), utf::to_string(first_operand) == utf::to_string(second_operand) })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", ">", T(first_operand), T(second_operand), utf::to_string(first_operand) > utf::to_string(second_operand) })
 
 #define ASSERT_LESS(first_operand, second_operand, message)                                                                                                                     \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "<", T(first_operand), T(second_operand), utf::to_string(first_operand) == utf::to_string(second_operand) })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "<", T(first_operand), T(second_operand), utf::to_string(first_operand) < utf::to_string(second_operand) })
 
 #define ASSERT_GREATER_OR_EQUAL(first_operand, second_operand, message)                                                                                                         \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", ">=", T(first_operand), T(second_operand), utf::to_string(first_operand) == utf::to_string(second_operand) })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", ">=", T(first_operand), T(second_operand), utf::to_string(first_operand) >= utf::to_string(second_operand) })
 
 #define ASSERT_LESS_OR_EQUAL(first_operand, second_operand, message)                                                                                                            \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "<=", T(first_operand), T(second_operand), utf::to_string(first_operand) == utf::to_string(second_operand) })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "<=", T(first_operand), T(second_operand), utf::to_string(first_operand) <= utf::to_string(second_operand) })
     
 #define ASSERT_FUNCTION(function_name, message)                                                                                                                                 \
 	if (!function_name) {                                                                                                                                                       \
@@ -69,10 +75,10 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 	if constexpr (__class_##class_name##_has_method_##method_name##_with_##template_postfix##__)
 	
 #define ASSERT_CLASS(class_name, message)                                                                                                                                       \
-	ASSERT_CALL_CLASS(class_name) {                                                                                                                                             \
+	ASSERT_CALL_CLASS(class_name) BEGIN {                                                                                                                                       \
 		holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                \
 									   __class_##class_name##_exists__ == true });                                                                                              \
-	} END;                                                                                                                                                                      \
+	} END                                                                                                                                                                       \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
 									   __class_##class_name##_exists__ == true });                                                                                              \
 	ASSERT_CALL_CLASS(class_name)
@@ -82,7 +88,8 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 		using class_name = std::decay_t<decltype(*p)>;                                                                                                                          \
 		__class_##class_name##_exists__ = true;
 
-#define END })
+#define BEGIN
+#define END });
 
 #define CHECK_FUNC_SIGNATURE(function_name, signature)                                                                                                                          \
 	std::string(typeid(function_name).name()) == std::string(typeid(signature).name()).substr(1)

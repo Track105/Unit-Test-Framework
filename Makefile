@@ -6,7 +6,6 @@ run:
 .PHONY: mrproper
 mrproper:
 	rm -f vpl_execution vpl_test 
-	rm -f *.txt
 	rm -f *.cases
 	rm -f *.h_ *.cpp_ *.hpp_
 	rm -f *.h *.cpp *.hpp

@@ -39,12 +39,12 @@ else
     mv tests.h_ tests.h
 	
 	let prev_line_main=$main_line-1
-	head -n $prev_line_main $main_file > a.txt
+	head -n $prev_line_main $main_file > student_impl.txt
 	cp vpl_evaluate.cpp saved_vpl_evaluate.cpp
-	cat a.txt > vpl_evaluate.cpp
+	cat student_impl.txt > vpl_evaluate.cpp
 	cat saved_vpl_evaluate.cpp >> vpl_evaluate.cpp
 	rm -f saved_vpl_evaluate.cpp
-	rm -f a.txt
+	rm -f student_impl.txt
 
 	#avoid conflict with C++ compilation
 	./vpl_run.sh
