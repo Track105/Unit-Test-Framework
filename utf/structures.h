@@ -12,15 +12,6 @@
 
 #define RUN_ALL_TESTS() RUN(suites, TestCase::requirements)
 
-#define EQ_OPERATOR_STR(type)                                             \
-	bool operator==(const type &arg, const std::string &s) {              \
-		return std::to_string(arg) == s;                                  \
-	}                                                                     \
-                                                                          \
-	bool operator==(const std::string &s, const type &arg) {              \
-		return std::to_string(arg) == s;                                  \
-	}
-
 typedef int64_t s64;
 typedef uint64_t u64; 
 typedef int32_t s32;
@@ -112,16 +103,15 @@ struct has_member {
     static bool const value = sizeof(f<Alias>(0)) == 2;
 };
 
-std::string stringify(std::string s) {
-    return std::move(s);
+std::string to_string(std::string str) {
+    return std::move(str);
 }
 
 template <typename T>
-std::enable_if_t<!std::is_convertible<T, std::string>::value, std::string> stringify(T&& value) {
+std::enable_if_t<!std::is_convertible<T, std::string>::value, std::string> to_string(T&& value) {
     using std::to_string;
-    return to_string(std::forward<T>(value));
+    return std::to_string(std::forward<T>(value));
 }
-
 
 }
 

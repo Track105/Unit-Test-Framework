@@ -13,22 +13,22 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
     constexpr void __##suite_name##__##test_name(utf::Holder<T> *holder)
 
 #define ASSERT_EQUAL(first_operand, second_operand, message)                                                                                                                    \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "==", T(first_operand), T(second_operand), utf::stringify(first_operand) == utf::stringify(second_operand) })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "==", T(first_operand), T(second_operand), utf::to_string(first_operand) == utf::to_string(second_operand) })
 
 #define ASSERT_NOT_EQUAL(first_operand, second_operand, message)                                                                                                                \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "!=", T(first_operand), T(second_operand), utf::stringify(first_operand) == utf::stringify(second_operand) })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "!=", T(first_operand), T(second_operand), utf::to_string(first_operand) == utf::to_string(second_operand) })
 
 #define ASSERT_GREATER(first_operand, second_operand, message)                                                                                                                  \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", ">", T(first_operand), T(second_operand), utf::stringify(first_operand) == utf::stringify(second_operand) })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", ">", T(first_operand), T(second_operand), utf::to_string(first_operand) == utf::to_string(second_operand) })
 
 #define ASSERT_LESS(first_operand, second_operand, message)                                                                                                                     \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "<", T(first_operand), T(second_operand), utf::stringify(first_operand) == utf::stringify(second_operand) })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "<", T(first_operand), T(second_operand), utf::to_string(first_operand) == utf::to_string(second_operand) })
 
 #define ASSERT_GREATER_OR_EQUAL(first_operand, second_operand, message)                                                                                                         \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", ">=", T(first_operand), T(second_operand), utf::stringify(first_operand) == utf::stringify(second_operand) })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", ">=", T(first_operand), T(second_operand), utf::to_string(first_operand) == utf::to_string(second_operand) })
 
 #define ASSERT_LESS_OR_EQUAL(first_operand, second_operand, message)                                                                                                            \
-    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "<=", T(first_operand), T(second_operand), utf::stringify(first_operand) == utf::stringify(second_operand) })
+    holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "<=", T(first_operand), T(second_operand), utf::to_string(first_operand) == utf::to_string(second_operand) })
     
 #define ASSERT_FUNCTION(function_name, message)                                                                                                                                 \
 	if (!function_name) {                                                                                                                                                       \
@@ -77,15 +77,15 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 									   __class_##class_name##_exists__ == true });                                                                                              \
 	ASSERT_CALL_CLASS(class_name)
     
-#define ASSERT_CALL_CLASS(struct_name)                                                                                                                                          \
-	utf::call_if_defined<struct struct_name>([&](auto* p) {                                                                                                                     \
-		using struct_name = std::decay_t<decltype(*p)>;                                                                                                                         \
-		__class_##struct_name##_exists__ = true;
+#define ASSERT_CALL_CLASS(class_name)                                                                                                                                           \
+	utf::call_if_defined<struct class_name>([&](auto* p) {                                                                                                                      \
+		using class_name = std::decay_t<decltype(*p)>;                                                                                                                          \
+		__class_##class_name##_exists__ = true;
 
 #define END })
 
 #define CHECK_FUNC_SIGNATURE(function_name, signature)                                                                                                                          \
-	std::string(typeid(function_name).name()) == std::string(typeid(signature).name()).substr(1)  
+	std::string(typeid(function_name).name()) == std::string(typeid(signature).name()).substr(1)
 	
 #define CHECK_CLASS_METHOD(method_name)                                                                                                                                         \
 	template<typename T, typename... Ts>                                                                                                                                        \
@@ -182,92 +182,6 @@ constexpr void RUN(const std::unordered_map<std::string, std::vector<utf::Test<T
 	    }
     }
 }
-
-                                                                       
-/*
-template<typename T>
-constexpr s8 RUN(const std::unordered_map<std::string, std::vector<utf::Test<T>>>& suites) {
-
-	s8 ret = 0;
-
-	if (suites.empty()) {
-		std::cout << "\nNo tests found.\n\n";
-		return ret;
-	}
-
-    std::cout << "\n";
-    std::vector<std::string> failed_tests;
-
-    for (const std::pair<std::string, std::vector<utf::Test<T>>>& suite : suites) {
-
-        std::cout << "[====================================================]\n";
-        const std::vector<utf::Test<T>>& tests = suite.second;
-        const std::string& suite_name = suite.first;
-        std::cout << "[==========] Running " << tests.size() << " tests from " << suite_name << " suite.\n\n";
-
-        for (size_t test_index = 0; test_index < tests.size(); test_index++) {
-	    
-            bool test_ok = true;
-		    const utf::Test<T> test = tests[test_index];
-		    utf::Holder<T> holder;
-		    (test.function_to_test)(&holder);
-		    std::string format_assert = holder.m_assertions.size() != 1 ? " asserts" : " assert";
-		    std::cout << "[----------] " << holder.m_assertions.size() << format_assert << " from " << test.suite_name << "::" << test.test_name << "\n";
-		    std::cout << "[    RUN   ] " << test.suite_name << "::" << test.test_name << "\n";
-
-		    for (size_t assert_index = 0; assert_index < holder.m_assertions.size(); assert_index++) {
-		    	
-		    
-		        const utf::Assertion<T> assertion = holder.m_assertions[assert_index];
-		        
-		        if (!assertion.m_check) {
-		        	if (test_ok == true) {
-		        		std::cerr << "error: Some asserts failed with the following error messages:" << "\n";
-		        		test_ok = false;
-		        	}
-				    std::cerr << "Error " << (assert_index + 1) << ": " << "<------ " << assertion.m_errorMessage << " ------>" << "\n";
-		        }
-		        
-		    }
-		    
-		    if (test_ok == true) {
-			    std::cout << "[    OK    ] " << test.suite_name << "::" << test.test_name << "\n\n";
-		    } else {
-			    std::cout << "[  FAILED  ] " << test.suite_name << "::" << test.test_name << "\n\n";
-			    failed_tests.push_back(test.suite_name + "::" + test.test_name);
-		    }
-		    
-	    }
-	    
-	    std::cout << "[==========] Begin status for " << suite_name << " suite\n\n";
-	    u16 nr_passed = tests.size() - failed_tests.size();
-	    std::string format_test_passed = nr_passed != 1 ? " tests" : " test";
-	    std::cout << "[  PASSED  ] " << tests.size() - failed_tests.size() << format_test_passed << "\n";
-	    
-	    if (!failed_tests.empty()) {
-		    std::string format_test_failed_lowercase = failed_tests.size() != 1 ? " tests" : " test";
-		    std::cout << "[  FAILED  ] " << failed_tests.size() << format_test_failed_lowercase << ", listed below:\n";
-		    std::cout << "[  FAILED  ] ";
-		    
-		    for (const std::string& failed_test : failed_tests) {
-			    std::cout << failed_test << "  ";
-		    }
-		    
-		    std::cout << "\n\n";
-		    std::string format_test_failed_uppercase = failed_tests.size() != 1 ? " TESTS" : " TEST";
-		    std::cout << failed_tests.size() << format_test_failed_uppercase << " FAILED\n\n";
-	    } else {
-		    std::cout << "\nALL TESTS PASSED\n\n";
-	    }
-	    
-	    std::cout << "[==========] End status for " << suite_name << " suite\n\n\n\n";
-	    failed_tests.clear();
-	    
-    }
-
-    return ret;
-}
-*/
 
 #endif
 
