@@ -263,6 +263,7 @@ public:
 	string getComment();
 	void runTest(time_t timeout);
 	bool match(string data);
+	int getOutputSize() const;
 };
 
 
@@ -1088,9 +1089,6 @@ string TestCase::getCommentTitle(bool withGradeReduction=false) {
 }
 
 string TestCase::getComment() {
-	if(output.size()==0){
-		return "Configuration error in the test case: the output is not defined";
-	}
 	if (correctOutput && !(programTimeout || outputTooLarge
 			|| executionError)) {
 		return "";
@@ -1108,12 +1106,12 @@ string TestCase::getComment() {
 		ret += executionErrorReason + string("\n");
 	}
 	if (!correctOutput) {
-		ret += "Incorrect program result\n";
-		ret += " --- Input ---\n";
-		ret += Tools::caseFormat(input);
-		ret += "\n --- Program output ---\n";
-		ret += Tools::caseFormat(programOutputBefore + programOutputAfter);
-		if(output.size()>0){
+		if(output.size() > 0) {
+			ret += "Incorrect program result\n";
+			ret += " --- Input ---\n";
+			ret += Tools::caseFormat(input);
+			ret += "\n --- Program output ---\n";
+			ret += Tools::caseFormat(programOutputBefore + programOutputAfter);
 			ret += "\n --- Expected output ("+output[0]->type()+")---\n";
 			ret += Tools::caseFormat(output[0]->studentOutputExpected());
 		}
@@ -1212,6 +1210,10 @@ bool TestCase::match(string data) {
 		if (output[i]->match(data))
 			return true;
 	return false;
+}
+
+int TestCase::getOutputSize() const {
+	return output.size();
 }
 
 
@@ -1523,7 +1525,9 @@ void Evaluation::runTests() {
 		if (maxtime - Timer::elapsedTime() < timeout) { //Try to run last case
 			timeout = maxtime - Timer::elapsedTime();
 		}
-		testCases[i].runTest(timeout);
+		if (testCases[i].getOutputSize() > 0) {
+			testCases[i].runTest(timeout);
+		}
 		
 		bool allRequirementsPassed = true;
 		bool singleDependsPassed = true;
@@ -1556,7 +1560,7 @@ void Evaluation::runTests() {
 		}
 		
 		nruns++;
-		if (!testCases[i].isCorrectResult() || !allRequirementsPassed || !allDependsPassed) {
+		if ((testCases[i].getOutputSize() > 0 && !testCases[i].isCorrectResult()) || !allRequirementsPassed || !allDependsPassed) {
 			if (Stop::isTERMRequested())
 				break;
 			float gr = testCases[i].getGradeReduction();
@@ -1703,5 +1707,4 @@ int main(int argc, char *argv[], const char **env) {
 	obj->outputEvaluation();
 	return EXIT_SUCCESS;
 }
-
 

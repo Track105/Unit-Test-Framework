@@ -1,6 +1,4 @@
 CASE=Test #1
-INPUT=1
-OUTPUT=1
 REQUIRES=Function::Name_multiply
 
 CASE=Test #2
