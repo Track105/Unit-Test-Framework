@@ -13,6 +13,9 @@ CHECK_CLASS_ATTRIBUTE(ftmp);
 CHECK_CLASS_METHOD(print);
 CHECK_CLASS_METHOD(sum);
 
+CHECK_CLASS_ATTRIBUTE_SIGNATURE(tmp, int T::*, tmp_int);
+CHECK_CLASS_ATTRIBUTE_SIGNATURE(ftmp, float T::*, ftmp_float);
+
 CHECK_CLASS_METHOD_SIGNATURE(print, void (T::*)(), rv_print_);
 CHECK_CLASS_METHOD_SIGNATURE(sum, int (T::*)(int, int), ri_sum_ii);
 
@@ -49,6 +52,12 @@ TEST(Class_Test, Attributes_tmp_ftmp_Existance) {
 		/* code */ 
 	} END	
 	ASSERT_CLASS_ATTRIBUTE(Test, ftmp, "Class 'Test' HAS NOT 'ftmp' attribute!") BEGIN {
+		/* code */ 
+	} END
+	ASSERT_CLASS_ATTRIBUTE_SIGNATURE(Test, tmp, tmp_int, "Class 'Test' HAS NOT an integer 'tmp' attribute!") BEGIN {
+		/* code */ 
+	} END	
+	ASSERT_CLASS_ATTRIBUTE_SIGNATURE(Test, ftmp, ftmp_float, "Class 'Test' HAS NOT a float 'ftmp' attribute!") BEGIN {
 		/* code */ 
 	} END
 	

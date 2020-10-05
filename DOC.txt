@@ -61,14 +61,27 @@
 
 
 
+**************************************************************************************************************************************************************************
+	@function    CHECK_CLASS_ATTRIBUTE_SIGNATURE  Create a tester for attribute type in any class.
+	@param       attribute_name                   Name of the attribute which need to be tested.
+	@param       signature                        Type of attribute to be checked.
+	@param       template_postfix                 It can be any valid name. BUT REMEMBER IT!
+	
+	@note                                         1) Signature of the attribute need to be in pointer to member function format, so
+												  instead of a 'type' you need to put 'type T::*'.
+**************************************************************************************************************************************************************************
+
+
+
+
 
 **************************************************************************************************************************************************************************
 	@function    CHECK_CLASS_METHOD_SIGNATURE     Create a tester for method signature in any class.
 	@param       method_name                      Name of the method which need to be tested.
 	@param       signature                        Signature for method to be checked.
-	@param       template_postfix                 It can be any valid name.
+	@param       template_postfix                 It can be any valid name. BUT REMEMBER IT!
 	
-	@note                                         1) Signature of the method need to be in function pointer format, but
+	@note                                         1) Signature of the method need to be in function pointer format, so
 												  instead of a '*' you need to put 'T::*'.
 **************************************************************************************************************************************************************************
 
@@ -146,12 +159,29 @@
 
 
 
+**************************************************************************************************************************************************************************
+	@function    ASSERT_CLASS_ATTRIBUTE_SIGNATURE Checks if an attribute in a given class has a given type.
+	@param       class_name                       Name of the class to be checked.
+	@param       attribute_name                   Name of the attribute in class 'class_name' to be checked. 
+	@param       template_postfix                 It can be any valid name, but need to be the same name when define CHECK_CLASS_ATTRIBUTE_SIGNATURE.
+												  
+	@param       message                          Message to be printed if something goes wrong.
+	
+	@note                                         1) This function depends on CHECK_CLASS_ATTRIBUTE_SIGNATURE function. 
+												  2) This function needs to begin with "BEGIN {".
+												  3) This function needs to end with "} END".
+**************************************************************************************************************************************************************************
+
+
+
+
 
 **************************************************************************************************************************************************************************
 	@function    ASSERT_CLASS_METHOD_SIGNATURE    Checks if a method in a given class has a given signature.
 	@param       class_name                       Name of the class to be checked.
 	@param       method_name                      Name of the method in class 'class_name' to be checked. 
 	@param       template_postfix                 It can be any valid name, but need to be the same name when define CHECK_CLASS_METHOD_SIGNATURE.
+												  
 	@param       message                          Message to be printed if something goes wrong.
 	
 	@note                                         1) This function depends on CHECK_CLASS_METHOD_SIGNATURE function. 

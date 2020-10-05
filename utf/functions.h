@@ -70,6 +70,13 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 								   __class_##class_name##_has_attribute_##attribute_name##__ == true });                                                                        \
 	if constexpr (__class_##class_name##_has_attribute_##attribute_name##__)
 	
+#define ASSERT_CLASS_ATTRIBUTE_SIGNATURE(class_name, attribute_name, template_postfix, message)                                                                                 \
+	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
+	const bool __class_##class_name##_has_attribute_##attribute_name##_with_##template_postfix##__ = __has_attribute_with_sig_##template_postfix##__<class_name>::value;        \
+	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
+			 __class_##class_name##_has_attribute_##attribute_name##_with_##template_postfix##__ == true });                                                                    \
+	if constexpr (__class_##class_name##_has_attribute_##attribute_name##_with_##template_postfix##__)
+	
 #define ASSERT_CLASS_METHOD_SIGNATURE(class_name, method_name, template_postfix, message)                                                                                       \
 	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
 	const bool __class_##class_name##_has_method_##method_name##_with_##template_postfix##__ = __has_method_with_sig_##template_postfix##__<class_name>::value;                 \
@@ -149,6 +156,14 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 		static const bool value = utf::has_member<Alias_##attribute_name<utf::ambiguate<T, AmbiguitySeed_##attribute_name>>,                                                    \
 		                                     Alias_##attribute_name<AmbiguitySeed_##attribute_name>>::value;                                                                    \
 	}
+	
+#define CHECK_CLASS_ATTRIBUTE_SIGNATURE(attribute_name, signature, template_postfix)                                                                                            \
+	template<typename T, typename = std::true_type>                                                                                                                             \
+	struct __has_attribute_with_sig_##template_postfix##__ : std::false_type {};                                                                                                \
+			                                                                                                                                                                    \
+	template<typename T>                                                                                                                                                        \
+	struct __has_attribute_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                      \
+		                                   utf::sig_check<signature, &T::attribute_name>::value>> : std::true_type {}
                                       
 #define CHECK_CLASS_METHOD_SIGNATURE(method_name, signature, template_postfix)                                                                                                  \
 	template<typename T, typename = std::true_type>                                                                                                                             \
