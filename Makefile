@@ -12,3 +12,9 @@ mrproper:
 	rm -f *.cpp.save
 	rm -f .vpl_tester
 	rm -f *.sh
+	rm -f gui/tests.h
+	
+.PHONY: test
+test:
+	cd gui;          \
+	./createTests.sh
