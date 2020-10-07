@@ -11,7 +11,11 @@ If you are in project root directory, you need to run the following commands:
 make run
 ./vpl_execution
 ```
-If you and to remove all files created, run the following command:
+If you want to run UI Test Creater, run the following command:
+```
+make test
+```
+If you want to remove all files created, run the following command:
 ```
 make mrproper
 ```
