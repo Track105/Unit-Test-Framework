@@ -35,21 +35,7 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 
 #define ASSERT_LESS_OR_EQUAL(first_operand, second_operand, message)                                                                                                            \
     holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "<=", T(first_operand), T(second_operand), utf::to_string(first_operand) <= utf::to_string(second_operand) })
-    
-#define ASSERT_FUNCTION(function_name, message)                                                                                                                                 \
-	if (!function_name) {                                                                                                                                                       \
-		holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0, false });                                                                      \
-	}                                                                                                                                                                           \
-	if (function_name)                                                                                                                                                          \
-		utf::call_if_function_defined([&](){                                                                                                                      
-	
-#define ASSERT_FUNCTION_SIGNATURE(function_name, signature, message)                                                                                                            \
-	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
-													  CHECK_FUNC_SIGNATURE(function_name, signature) == true });                                                                \
-	if (function_name)                                                                                                                                                          \
-		utf::call_if_function_defined([&]() {                                
-	            
-	
+                               
 #define ASSERT_CLASS_CONSTRUCTOR(message, class_name, ...)                                                                                                                      \
 	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
@@ -84,6 +70,20 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 			 __class_##class_name##_has_method_##method_name##_with_##template_postfix##__ == true });                                                                          \
 	if constexpr (__class_##class_name##_has_method_##method_name##_with_##template_postfix##__)
 	
+#define ASSERT_FUNCTION(function_name, message)                                                                                                                                 \
+	ASSERT_CALL_FUNCTION()                                                                                                                                                      \
+	const bool __class___HACK___has_function_##function_name##__ = __has_function_##function_name##__<__HACK__>::value;                                                         \
+	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
+								   __class___HACK___has_function_##function_name##__ == true });                                                                                \
+	if constexpr (__class___HACK___has_function_##function_name##__)
+	
+#define ASSERT_FUNCTION_SIGNATURE(function_name, template_postfix, message)                                                                                                     \
+	ASSERT_CALL_FUNCTION()                                                                                                                                                      \
+	const bool __class___HACK___has_function_##function_name##_with_##template_postfix##__ = __has_function_with_sig_##template_postfix##__<__HACK__>::value;                   \
+	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
+			 __class___HACK___has_function_##function_name##_with_##template_postfix##__ == true });                                                                            \
+	if constexpr (__class___HACK___has_function_##function_name##_with_##template_postfix##__)
+	
 #define ASSERT_CLASS(class_name, message)                                                                                                                                       \
 	ASSERT_CALL_CLASS(class_name) BEGIN { } END                                                                                                                                 \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
@@ -94,6 +94,10 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 	utf::call_if_class_defined<struct class_name>([&](auto* p) {                                                                                                                \
 		using class_name = std::decay_t<decltype(*p)>;                                                                                                                          \
 		__class_##class_name##_exists__ = true;
+		
+#define ASSERT_CALL_FUNCTION()                                                                                                                                                  \
+	utf::call_if_class_defined<struct __HACK__>([&](auto* p) {                                                                                                                  \
+		using __HACK__ = std::decay_t<decltype(*p)>;                                                                                                                            \
 
 #define BEGIN
 #define END });
@@ -112,10 +116,10 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 	}                                                                                                                                                                           \
 	                                                                                                                                                                            \
 	template<typename T, typename = std::true_type>                                                                                                                             \
-	struct Alias_##method_name;                                                                                                                                                 \
+	struct Alias_method_##method_name;                                                                                                                                          \
 	                                                                                                                                                                            \
 	template<typename T>                                                                                                                                                        \
-	struct Alias_##method_name<T, std::integral_constant<bool, utf::got_type<decltype(&T::method_name)>::value>> {                                                              \
+	struct Alias_method_##method_name<T, std::integral_constant<bool, utf::got_type<decltype(&T::method_name)>::value>> {                                                       \
 		static const decltype(&T::method_name) value;                                                                                                                           \
 	};                                                                                                                                                                          \
 	                                                                                                                                                                            \
@@ -125,8 +129,36 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 	                                                                                                                                                                            \
 	template<typename T>                                                                                                                                                        \
 	struct __has_method_##method_name##__ {                                                                                                                                     \
-		static const bool value = utf::has_member<Alias_##method_name<utf::ambiguate<T, AmbiguitySeed_##method_name>>,                                                          \
-		                                     Alias_##method_name<AmbiguitySeed_##method_name>>::value;                                                                          \
+		static const bool value = utf::has_member<Alias_method_##method_name<utf::ambiguate<T, AmbiguitySeed_##method_name>>,                                                   \
+		                                     Alias_method_##method_name<AmbiguitySeed_##method_name>>::value;                                                                   \
+	}
+	
+#define CHECK_FUNCTION(function_name)                                                                                                                                           \
+	template<typename T, typename... Ts>                                                                                                                                        \
+	auto __check_function_##function_name##__(T* obj, Ts... args) -> decltype(obj->function_name(args...)) {                                                                    \
+		return obj->function_name(args...);                                                                                                                                     \
+	}                                                                                                                                                                           \
+		                                                                                                                                                                        \
+	auto __check_function_##function_name##__(...) -> std::string {                                                                                                             \
+		return std::string("Function ") + std::string(#function_name) + std::string(" is not defined!");                                                                        \
+	}                                                                                                                                                                           \
+	                                                                                                                                                                            \
+	template<typename T, typename = std::true_type>                                                                                                                             \
+	struct Alias_function_##function_name;                                                                                                                                      \
+	                                                                                                                                                                            \
+	template<typename T>                                                                                                                                                        \
+	struct Alias_function_##function_name<T, std::integral_constant<bool, utf::got_type<decltype(&T::function_name)>::value>> {                                                 \
+		static const decltype(&T::function_name) value;                                                                                                                         \
+	};                                                                                                                                                                          \
+	                                                                                                                                                                            \
+	struct AmbiguitySeed_##function_name {                                                                                                                                      \
+		char function_name;                                                                                                                                                     \
+	};                                                                                                                                                                          \
+	                                                                                                                                                                            \
+	template<typename T>                                                                                                                                                        \
+	struct __has_function_##function_name##__ {                                                                                                                                 \
+		static const bool value = utf::has_member<Alias_function_##function_name<utf::ambiguate<T, AmbiguitySeed_##function_name>>,                                             \
+		                                     Alias_function_##function_name<AmbiguitySeed_##function_name>>::value;                                                             \
 	}
 	
 #define CHECK_CLASS_ATTRIBUTE(attribute_name)                                                                                                                                   \
@@ -172,6 +204,14 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 	template<typename T>                                                                                                                                                        \
 	struct __has_method_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                         \
 	                                       utf::sig_check<signature, &T::method_name>::value>> : std::true_type {}
+	                                       
+#define CHECK_FUNCTION_SIGNATURE(function_name, signature, template_postfix)                                                                                                    \
+	template<typename T, typename = std::true_type>                                                                                                                             \
+	struct __has_function_with_sig_##template_postfix##__ : std::false_type {};                                                                                                 \
+		                                                                                                                                                                        \
+	template<typename T>                                                                                                                                                        \
+	struct __has_function_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                       \
+	                                       utf::sig_check<signature, &T::function_name>::value>> : std::true_type {}
 	                                       
 #define CLASS(class_name)                                                                                                                                                       \
 	static bool __class_##class_name##_exists__ = false

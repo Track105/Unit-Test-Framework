@@ -42,6 +42,9 @@ else
 	head -n $prev_line_main $main_file > student_impl.txt
 	cp vpl_evaluate.cpp saved_vpl_evaluate.cpp
 	cat student_impl.txt > vpl_evaluate.cpp
+	sed -i '1s/^/struct __HACK__ {\n/' student_impl.txt
+	echo "};" >> student_impl.txt
+	cat student_impl.txt >> vpl_evaluate.cpp
 	cat saved_vpl_evaluate.cpp >> vpl_evaluate.cpp
 	rm -f saved_vpl_evaluate.cpp
 	rm -f student_impl.txt

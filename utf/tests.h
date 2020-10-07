@@ -13,26 +13,28 @@ CHECK_CLASS_ATTRIBUTE(ftmp);
 CHECK_CLASS_METHOD(print);
 CHECK_CLASS_METHOD(sum);
 
+CHECK_FUNCTION(multiply);
+
 CHECK_CLASS_ATTRIBUTE_SIGNATURE(tmp, int T::*, tmp_int);
 CHECK_CLASS_ATTRIBUTE_SIGNATURE(ftmp, float T::*, ftmp_float);
 
 CHECK_CLASS_METHOD_SIGNATURE(print, void (T::*)(), rv_print_);
 CHECK_CLASS_METHOD_SIGNATURE(sum, int (T::*)(int, int), ri_sum_ii);
 
-int multiply(int, int) __attribute__((weak));
+CHECK_FUNCTION_SIGNATURE(multiply, int (T::*)(int, int), int_multiply_int_int);
 
 
 TEST(Function, Name_multiply) {
 	
-    ASSERT_FUNCTION(multiply, "Function 'multiply' HAS NOT BEEN defined!") BEGIN {
-    	ASSERT_FUNCTION_SIGNATURE(multiply, int(*)(int, int), "Function 'multiply' DOES NOT have the given signature!") BEGIN {
-    		int i_val = 3;
-    		int f_val = 2;
-    		int result = multiply(i_val, f_val);
-    		int expected_result = 6;
-    		ASSERT_EQUAL(result, expected_result, "Function 'multiply' DOES NOT return the required result!");
-    	} END
-    } END
+    ASSERT_FUNCTION(multiply, "Function 'multiply' DOES NOT exist!") BEGIN {
+    	/* code */
+	} END
+	
+	ASSERT_FUNCTION_SIGNATURE(multiply, int_multiply_int_int, "Signature for function 'multiply' IS NOT correct!") BEGIN {
+		
+		ASSERT_EQUAL(multiply(3, 2), 6, "Function 'multiply' DOES NOT return the required result!");
+		
+	} END
     
 }
 
