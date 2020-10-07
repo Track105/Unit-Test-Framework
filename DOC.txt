@@ -61,9 +61,19 @@
 
 
 
+
+**************************************************************************************************************************************************************************
+	@function    CHECK_FUNCTION                   Create a tester for a function declared in global scope.
+	@param       function_name                    Name of the function which need to be tested.
+**************************************************************************************************************************************************************************
+
+
+
+
+
 **************************************************************************************************************************************************************************
 	@function    CHECK_CLASS_ATTRIBUTE_SIGNATURE  Create a tester for attribute type in any class.
-	@param       attribute_name                   Name of the attribute which need to be tested.
+	@param       attribute_name                   Name of the attribute need to be tested.
 	@param       signature                        Type of attribute to be checked.
 	@param       template_postfix                 It can be any valid name. BUT REMEMBER IT!
 	
@@ -77,12 +87,25 @@
 
 **************************************************************************************************************************************************************************
 	@function    CHECK_CLASS_METHOD_SIGNATURE     Create a tester for method signature in any class.
-	@param       method_name                      Name of the method which need to be tested.
+	@param       method_name                      Name of the method need to be tested.
 	@param       signature                        Signature for method to be checked.
 	@param       template_postfix                 It can be any valid name. BUT REMEMBER IT!
 	
-	@note                                         1) Signature of the method need to be in function pointer format, so
-												  instead of a '*' you need to put 'T::*'.
+	@note                                         1) Signature of the method need to be in pointer to member 
+												  function format, so instead of a '*' you need to put 'T::*'.
+**************************************************************************************************************************************************************************
+
+
+
+
+**************************************************************************************************************************************************************************
+	@function    CHECK_FUNCTION_SIGNATURE         Create a tester for function signature.
+	@param       function_name                    Name of the function need to be tested.
+	@param       signature                        Signature for function to be checked.
+	@param       template_postfix                 It can be any valid name. BUT REMEMBER IT!
+	
+	@note                                         1) Signature of the function need to be in pointer to member 
+												  function format, so instead of a '*' you need to put 'T::*'.
 **************************************************************************************************************************************************************************
 
 
@@ -105,12 +128,11 @@
 **************************************************************************************************************************************************************************
 	@function    ASSERT_FUNCTION_SIGNATURE        Checks if a function has been defined.
 	@param       function_name                    Name of the function to be checked.
-	@param       signature                        Signature for function to be checked.
+	@param       template_postfix                 It can be any valid name, but need to be the same name when define CHECK_FUNCTION_SIGNATURE.
 	@param       message                          Message to be printed if something goes wrong.
 	
-	@note                                         1) Signature of the function need to be in function pointer format.
-												  2) This function needs to begin with "BEGIN {".
-												  3) This function needs to end with "} END".
+	@note									      1) This function needs to begin with "BEGIN {".
+												  2) This function needs to end with "} END".
 **************************************************************************************************************************************************************************
 
 
