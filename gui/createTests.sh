@@ -32,7 +32,7 @@ function add_class {
 }
 
 function add_attribute {
-whiptail --title "Add Attribute" --menu "Choose an option" --cancel-button "Exit" 25 90 16 \
+	whiptail --title "Add Attribute" --menu "Choose an option" --cancel-button "Exit" 25 90 16 \
 		"Register            " "Register attribute you want to test." \
 		"Signature        " "Register a type for attribute you want to check." \
 		3>&1 1>&2 2>out.txt
@@ -90,7 +90,7 @@ whiptail --title "Add Attribute" --menu "Choose an option" --cancel-button "Exit
 }
 
 function add_method {
-whiptail --title "Add Method" --menu "Choose an option" --cancel-button "Exit" 25 90 16 \
+	whiptail --title "Add Method" --menu "Choose an option" --cancel-button "Exit" 25 90 16 \
 		"Register        " "Register method you want to test." \
 		"Signature        " "Register a signature for method you want to check." \
 		3>&1 1>&2 2>out.txt
@@ -162,37 +162,75 @@ whiptail --title "Add Method" --menu "Choose an option" --cancel-button "Exit" 2
 }
 
 function add_function {
-	FUNCTION_NAME=$(whiptail --inputbox "Enter the function name" 8 65 --title "Add Function" 3>&1 1>&2 2>&3)
-	if [ -z "$FUNCTION_NAME" ]; then
-		COMMAND="utf"
-		return 0
-	fi
-	RETURN_VALUE=$(whiptail --inputbox "Enter the return type of function "$FUNCTION_NAME 8 65 --title "Add Function" 3>&1 1>&2 2>&3)
-	if [ -z "$RETURN_VALUE" ]; then
-		COMMAND="utf"
-		return 0
-	fi
-	NR_INPUT_PARAMETERS=$(whiptail --inputbox "How many parameters function "$FUNCTION_NAME" has?" 8 65 --title "Add Function" 3>&1 1>&2 2>&3)
-	if [ -z "$NR_INPUT_PARAMETERS" ]; then
-		COMMAND="utf"
-		return 0
-	fi
-	ALL_PARAMETERS=""
-	for ((i = 1 ; i <= $NR_INPUT_PARAMETERS ; i++ )); do
-		PARAMETER=$(whiptail --inputbox "Enter the type of parameter "$i 8 65 --title "Add Function" 3>&1 1>&2 2>&3)
-		if [ -z "$PARAMETER" ]; then
+	whiptail --title "Add Function" --menu "Choose an option" --cancel-button "Exit" 25 90 16 \
+		"Register        " "Register function you want to test." \
+		"Signature        " "Register a signature for function you want to check." \
+		3>&1 1>&2 2>out.txt
+	MENU=$(cat out.txt)
+	rm out.txt
+	case $MENU in
+		"Register        ")
+			FUNCTION_NAME=$(whiptail --inputbox "Enter the function name" 8 39 --title "Register Function" 3>&1 1>&2 2>&3)
+			functions+=("$FUNCTION_NAME")
+			if [ -z "$FUNCTION_NAME" ]; then
+				COMMAND="utf"
+				return 0
+			fi
+			echo 'CHECK_FUNCTION('$FUNCTION_NAME');' >> tests.h
+			whiptail --title "Register FUNCTION" --msgbox "Function "$FUNCTION_NAME" was added successfully!" 8 78
+			;;
+		"Signature        ")
+			if [ "${#functions[@]}" -eq 0 ]; then
+				whiptail --title "Function Signature" --msgbox "No functions found!" 8 78
+				return 0
+			fi
+			whiplist_args=''
+			for ((i = 0 ; i < ${#functions[@]} ; i++ )); do
+				whiplist_args=$whiplist_args' '${functions[$i]}' Select_Function_'${functions[$i]}' OFF '
+			done
+			whiptail --title "Function Signature" --radiolist "Select a function" 20 78 13 $whiplist_args 3>&1 1>&2 2>out.txt
+			FUNCTION_NAME=$(cat out.txt)
+			rm out.txt
+			if [ -z "$FUNCTION_NAME" ]; then
+				COMMAND="utf"
+				return 0
+			fi
+			RETURN_VALUE=$(whiptail --inputbox "Enter the return type of function "$METHOD_NAME 8 65 --title "Function Signature" 3>&1 1>&2 2>&3)
+			if [ -z "$RETURN_VALUE" ]; then
+				COMMAND="utf"
+				return 0
+			fi
+			TEMPLATE_POSTFIX=$(whiptail --inputbox "Enter an identifier for function "$FUNCTION_NAME". REMEMBER IT!" 8 65 --title "Function Signature" 3>&1 1>&2 2>&3)
+			if [ -z "$TEMPLATE_POSTFIX" ]; then
+				COMMAND="utf"
+				return 0
+			fi
+			NR_INPUT_PARAMETERS=$(whiptail --inputbox "How many parameters function "$FUNCTION_NAME" has?" 8 65 --title "Function Signature" 3>&1 1>&2 2>&3)
+			if [ -z "$NR_INPUT_PARAMETERS" ]; then
+				COMMAND="utf"
+				return 0
+			fi
+			ALL_PARAMETERS=""
+			for ((i = 1 ; i <= $NR_INPUT_PARAMETERS ; i++ )); do
+				PARAMETER=$(whiptail --inputbox "Enter the type of parameter "$i 8 65 --title "Function Signature" 3>&1 1>&2 2>&3)
+				if [ -z "$PARAMETER" ]; then
+					COMMAND="utf"
+					return 0
+				fi
+				if [ $i == $NR_INPUT_PARAMETERS ]; then
+					ALL_PARAMETERS=$ALL_PARAMETERS$PARAMETER
+				else
+					ALL_PARAMETERS=$ALL_PARAMETERS$PARAMETER','
+				fi
+			done
+			echo 'CHECK_FUNCTION_SIGNATURE('$FUNCTION_NAME', '$RETURN_VALUE'(T::*)('$ALL_PARAMETERS'), '$TEMPLATE_POSTFIX');' >> tests.h	
+			whiptail --title "Register Signature" --msgbox "Signature for function "$FUNCTION_NAME" was added successfully!" 8 78
 			COMMAND="utf"
-			return 0
-		fi
-		if [ $i == $NR_INPUT_PARAMETERS ]; then
-			ALL_PARAMETERS=$ALL_PARAMETERS$PARAMETER
-		else
-			ALL_PARAMETERS=$ALL_PARAMETERS$PARAMETER','
-		fi
-	done
-	echo $RETURN_VALUE' '$FUNCTION_NAME'('$ALL_PARAMETERS') __attribute__((weak));' >> tests.h
-	whiptail --title "Add Function" --msgbox "Function "$FUNCTION_NAME" was added successfully!" 8 78
-	COMMAND="utf"
+			;;
+		*)
+			COMMAND="utf"
+			;;
+	esac
 }
 
 function create_test {
