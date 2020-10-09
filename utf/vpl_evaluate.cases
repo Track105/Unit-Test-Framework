@@ -4,19 +4,19 @@ REQUIRES=Function::Name_multiply
 CASE=Test #2
 INPUT=2
 OUTPUT=2
-REQUIRES=Class_Test::Class_Existance
+REQUIRES=Class_Test::Class_Existence
 
 CASE=Test #3
 INPUT=3
 OUTPUT=3
 DEPENDENCIES=Test #2
-REQUIRES=Class_Test::Attributes_tmp_ftmp_Existance
+REQUIRES=Class_Test::Attributes_tmp_ftmp_Existence
 
 CASE=Test #4
 INPUT=4
 OUTPUT=4
 DEPENDENCIES=Test #2
-REQUIRES=Class_Test::Methods_print_sum_Existance
+REQUIRES=Class_Test::Methods_print_sum_Existence
 
 CASE=Test #5
 INPUT=6

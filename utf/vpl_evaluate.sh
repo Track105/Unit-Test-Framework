@@ -40,6 +40,9 @@ else
 	
 	let prev_line_main=$main_line-1
 	head -n $prev_line_main $main_file > student_impl.txt
+	sed -i 's/class/struct/g' student_impl.txt
+	sed -i 's/private\s*:/public:/g' student_impl.txt
+	sed -i 's/protected\s*:/public:/g' student_impl.txt
 	cp vpl_evaluate.cpp saved_vpl_evaluate.cpp
 	cat student_impl.txt > vpl_evaluate.cpp
 	sed -i '1s/^/struct __HACK__ {\n/' student_impl.txt

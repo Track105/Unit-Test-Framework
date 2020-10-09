@@ -26,9 +26,7 @@ CHECK_FUNCTION_SIGNATURE(multiply, int (T::*)(int, int), int_multiply_int_int);
 
 TEST(Function, Name_multiply) {
 	
-    ASSERT_FUNCTION(multiply, "Function 'multiply' DOES NOT exist!") BEGIN {
-    	/* code */
-	} END
+    ASSERT_FUNCTION(multiply, "Function 'multiply' DOES NOT exist!");
 	
 	ASSERT_FUNCTION_SIGNATURE(multiply, int_multiply_int_int, "Signature for function 'multiply' IS NOT correct!") BEGIN {
 		
@@ -39,53 +37,40 @@ TEST(Function, Name_multiply) {
 }
 
 
-TEST(Class_Test, Class_Existance) {
+TEST(Class_Test, Class_Existence) {
 
-	ASSERT_CLASS(Test, "Class 'Test' HAS NOT BEEN defined!") BEGIN {
-		/* code */ 
-	} END
+	ASSERT_CLASS(Test, "Class 'Test' HAS NOT BEEN defined!");
 	
 }
 
 
-TEST(Class_Test, Attributes_tmp_ftmp_Existance) {
+TEST(Class_Test, Attributes_tmp_ftmp_Existence) {
 	
-	ASSERT_CLASS_ATTRIBUTE(Test, tmp, "Class 'Test' HAS NOT 'tmp' attribute!") BEGIN {
-		/* code */ 
-	} END	
-	ASSERT_CLASS_ATTRIBUTE(Test, ftmp, "Class 'Test' HAS NOT 'ftmp' attribute!") BEGIN {
-		/* code */ 
-	} END
-	ASSERT_CLASS_ATTRIBUTE_SIGNATURE(Test, tmp, tmp_int, "Class 'Test' HAS NOT an integer 'tmp' attribute!") BEGIN {
-		/* code */ 
-	} END	
-	ASSERT_CLASS_ATTRIBUTE_SIGNATURE(Test, ftmp, ftmp_float, "Class 'Test' HAS NOT a float 'ftmp' attribute!") BEGIN {
-		/* code */ 
-	} END
+	ASSERT_CLASS_ATTRIBUTE(Test, tmp, "Class 'Test' HAS NOT 'tmp' attribute!");	
+	ASSERT_CLASS_ATTRIBUTE(Test, ftmp, "Class 'Test' HAS NOT 'ftmp' attribute!");
+	
+}
+
+TEST(Class_Test, Attributes_tmp_ftmp_Signatures) {
+
+	ASSERT_CLASS_ATTRIBUTE_SIGNATURE(Test, tmp, tmp_int, "Class 'Test' HAS NOT an integer 'tmp' attribute!");
+	ASSERT_CLASS_ATTRIBUTE_SIGNATURE(Test, ftmp, ftmp_float, "Class 'Test' HAS NOT a float 'ftmp' attribute!");
 	
 }
 
 
-TEST(Class_Test, Methods_print_sum_Existance) {
+TEST(Class_Test, Methods_print_sum_Existence) {
 	
-	ASSERT_CLASS_METHOD(Test, print, "Class 'Test' HAS NOT 'print' method!") BEGIN {
-		/* code */ 
-	} END
-	ASSERT_CLASS_METHOD(Test, sum, "Class 'Test' HAS NOT 'sum' method!") BEGIN {
-		/* code */ 
-	} END
+	ASSERT_CLASS_METHOD(Test, print, "Class 'Test' HAS NOT 'print' method!");
+	ASSERT_CLASS_METHOD(Test, sum, "Class 'Test' HAS NOT 'sum' method!");
 	
 }
 
 
 TEST(Class_Test, Methods_print_sum_Signatures) {
 		
-	ASSERT_CLASS_METHOD_SIGNATURE(Test, sum, ri_sum_ii, "Signature for method 'sum' in class 'Test' IS NOT correct!") BEGIN {
-		/* code */ 
-	} END
-	ASSERT_CLASS_METHOD_SIGNATURE(Test, print, rv_print_, "Signature for method 'print' in class 'Test' IS NOT correct!") BEGIN {
-		/* code */ 
-	} END
+	ASSERT_CLASS_METHOD_SIGNATURE(Test, sum, ri_sum_ii, "Signature for method 'sum' in class 'Test' IS NOT correct!");
+	ASSERT_CLASS_METHOD_SIGNATURE(Test, print, rv_print_, "Signature for method 'print' in class 'Test' IS NOT correct!");
 		
 }
 
