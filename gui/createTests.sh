@@ -33,6 +33,7 @@ function add_class {
 	fi
 	classes+=("$CLASS_NAME")
 	echo 'CLASS('$CLASS_NAME');' >> tests.h
+	echo '' >> tests.h
 	whiptail --title "Add Class" --msgbox "Class "$CLASS_NAME" was added successfully!" 8 78
 }
 
@@ -46,12 +47,13 @@ function add_attribute {
 	case $MENU in
 		"Register            ")
 			ATTRIBUTE_NAME=$(whiptail --inputbox "Enter the attribute name" 8 39 --title "Add Attribute" 3>&1 1>&2 2>&3)
-			attributes+=("$ATTRIBUTE_NAME")
 			if [ -z "$ATTRIBUTE_NAME" ]; then
 				COMMAND="utf"
 				return 0
 			fi
+			attributes+=("$ATTRIBUTE_NAME")
 			echo 'CHECK_CLASS_ATTRIBUTE('$ATTRIBUTE_NAME');' >> tests.h
+			echo '' >> tests.h
 			whiptail --title "Add Attribute" --msgbox "Attribute "$ATTRIBUTE_NAME" was added successfully!" 8 78
 			COMMAND="utf"
 			;;
@@ -83,6 +85,7 @@ function add_attribute {
 			fi
 			attributes_sigs+=("$TEMPLATE_POSTFIX")
 			echo 'CHECK_CLASS_ATTRIBUTE_SIGNATURE('$ATTRIBUTE_NAME', '$ATTRIBUTE_TYPE' T::*, '$TEMPLATE_POSTFIX');' >> tests.h	
+			echo '' >> tests.h
 			whiptail --title "Register Signature" --msgbox "Signature for attribute "$ATTRIBUTE_NAME" was added successfully!" 8 78
 			COMMAND="utf"
 			;;
@@ -102,12 +105,13 @@ function add_method {
 	case $MENU in
 		"Register        ")
 			METHOD_NAME=$(whiptail --inputbox "Enter the method name" 8 39 --title "Register Method" 3>&1 1>&2 2>&3)
-			methods+=("$METHOD_NAME")
 			if [ -z "$METHOD_NAME" ]; then
 				COMMAND="utf"
 				return 0
 			fi
+			methods+=("$METHOD_NAME")
 			echo 'CHECK_CLASS_METHOD('$METHOD_NAME');' >> tests.h
+			echo '' >> tests.h
 			whiptail --title "Register Method" --msgbox "Method "$METHOD_NAME" was added successfully!" 8 78
 			;;
 		"Signature        ")
@@ -156,6 +160,7 @@ function add_method {
 				fi
 			done
 			echo 'CHECK_CLASS_METHOD_SIGNATURE('$METHOD_NAME', '$RETURN_VALUE'(T::*)('$ALL_PARAMETERS'), '$TEMPLATE_POSTFIX');' >> tests.h	
+			echo '' >> tests.h
 			whiptail --title "Register Signature" --msgbox "Signature for method "$METHOD_NAME" was added successfully!" 8 78
 			COMMAND="utf"
 			;;
@@ -175,12 +180,13 @@ function add_function {
 	case $MENU in
 		"Register        ")
 			FUNCTION_NAME=$(whiptail --inputbox "Enter the function name" 8 39 --title "Register Function" 3>&1 1>&2 2>&3)
-			functions+=("$FUNCTION_NAME")
 			if [ -z "$FUNCTION_NAME" ]; then
 				COMMAND="utf"
 				return 0
 			fi
+			functions+=("$FUNCTION_NAME")
 			echo 'CHECK_FUNCTION('$FUNCTION_NAME');' >> tests.h
+			echo '' >> tests.h
 			whiptail --title "Register FUNCTION" --msgbox "Function "$FUNCTION_NAME" was added successfully!" 8 78
 			;;
 		"Signature        ")
@@ -228,7 +234,8 @@ function add_function {
 					ALL_PARAMETERS=$ALL_PARAMETERS$PARAMETER','
 				fi
 			done
-			echo 'CHECK_FUNCTION_SIGNATURE('$FUNCTION_NAME', '$RETURN_VALUE'(T::*)('$ALL_PARAMETERS'), '$TEMPLATE_POSTFIX');' >> tests.h	
+			echo 'CHECK_FUNCTION_SIGNATURE('$FUNCTION_NAME', '$RETURN_VALUE'(T::*)('$ALL_PARAMETERS'), '$TEMPLATE_POSTFIX');' >> tests.h
+			echo '' >> tests.h	
 			whiptail --title "Register Signature" --msgbox "Signature for function "$FUNCTION_NAME" was added successfully!" 8 78
 			COMMAND="utf"
 			;;
@@ -250,6 +257,7 @@ function create_test {
 		return 0
 	fi
 	echo "TEST("$SUITE_NAME", "$TEST_NAME") {" > create_test_tmp.txt
+	echo '' >> create_test_tmp.txt
 	while true; do
 		whiptail --title "Create Test" --menu "Choose an option" --cancel-button "Exit" 25 90 16 \
 			"Assert Function" "Test if function exists." \
@@ -286,9 +294,8 @@ function create_test {
 					COMMAND="utf"
 					continue
 				fi
-				echo "    ASSERT_FUNCTION("$FUNCTION_NAME", "'"'$MESSAGE'"'") BEGIN {" >> create_test_tmp.txt
-				echo "        /* code */" >> create_test_tmp.txt
-				echo "    } END" >> create_test_tmp.txt
+				echo "    ASSERT_FUNCTION("$FUNCTION_NAME", "'"'$MESSAGE'"'");" >> create_test_tmp.txt
+				echo '' >> create_test_tmp.txt
 				whiptail --title "Create Test" --msgbox "Assert for function "$FUNCTION_NAME" was added successfully!" 8 78
 				;;
 			"Assert Function Sig")
@@ -328,9 +335,53 @@ function create_test {
 					continue
 				fi
 				echo "    ASSERT_FUNCTION_SIGNATURE("$FUNCTION_NAME", "$SIGNATURE_NAME", "'"'$MESSAGE'"'") BEGIN {" >> create_test_tmp.txt
-				echo "        /* code */" >> create_test_tmp.txt
-				echo "    } END" >> create_test_tmp.txt
+				echo '' >> create_test_tmp.txt
 				whiptail --title "Create Test" --msgbox "Assert signature for function "$FUNCTION_NAME" was added successfully!" 8 78
+				
+				while true; do
+					if (whiptail --title "Assert Function Sig" --yesno "Do you want to check return value of function "$FUNCTION_NAME" ?" 8 78); then
+						NR_INPUT_PARAMETERS=$(whiptail --inputbox "How many parameters function "$FUNCTION_NAME" has?" 8 65 --title "Assert Function Sig" 3>&1 1>&2 2>&3)
+						if [ -z "$NR_INPUT_PARAMETERS" ]; then
+							COMMAND="utf"
+							continue
+						fi
+						ALL_PARAMETERS=""
+						CHECK=""
+						for ((i = 1 ; i <= $NR_INPUT_PARAMETERS ; i++ )); do
+							PARAMETER=$(whiptail --inputbox "Enter value of parameter "$i 8 65 --title "Assert Function Sig" 3>&1 1>&2 2>&3)
+							if [ -z "$PARAMETER" ]; then
+								CHECK="False"
+								break
+							fi
+							if [ $i == $NR_INPUT_PARAMETERS ]; then
+								ALL_PARAMETERS=$ALL_PARAMETERS$PARAMETER
+							else
+								ALL_PARAMETERS=$ALL_PARAMETERS$PARAMETER','
+							fi
+						done
+						if [ "$CHECK" == "False" ]; then
+							COMMAND="utf"
+							continue
+						fi
+						RETURN_VALUE=$(whiptail --inputbox "Enter the return value of function "$FUNCTION_NAME 8 65 --title "Assert Function Sig" 3>&1 1>&2 2>&3)
+						if [ -z "$RETURN_VALUE" ]; then
+							COMMAND="utf"
+							continue
+						fi
+						MESSAGE=$(whiptail --inputbox "Enter a message if the test fails" 8 39 --title "Assert Function Sig" 3>&1 1>&2 2>&3)
+						if [ -z "$MESSAGE" ]; then
+							COMMAND="utf"
+							continue
+						fi
+						echo "        ASSERT_EQUAL("$FUNCTION_NAME"("$ALL_PARAMETERS"), "$RETURN_VALUE', "'$MESSAGE'"'");" >> create_test_tmp.txt
+						whiptail --title "Assert Function Sig" --msgbox "Assert return value for function "$FUNCTION_NAME" was added successfully!" 8 78
+					else
+						break
+					fi
+				done
+				
+				echo "    } END" >> create_test_tmp.txt
+				echo '' >> create_test_tmp.txt
 				;;
 			"Assert Class")
 				if [ "${#classes[@]}" -eq 0 ]; then
@@ -353,9 +404,7 @@ function create_test {
 					COMMAND="utf"
 					continue
 				fi
-				echo "    ASSERT_CLASS("$CLASS_NAME", "'"'$MESSAGE'"'") BEGIN {" >> create_test_tmp.txt
-				echo "        /* code */" >> create_test_tmp.txt
-				echo "    } END" >> create_test_tmp.txt
+				echo "    ASSERT_CLASS("$CLASS_NAME", "'"'$MESSAGE'"'");" >> create_test_tmp.txt
 				whiptail --title "Create Test" --msgbox "Assert for class "$CLASS_NAME" was added successfully!" 8 78
 				;;
 			"Assert Class Attribute")
@@ -394,9 +443,7 @@ function create_test {
 					COMMAND="utf"
 					continue
 				fi
-				echo "    ASSERT_CLASS_ATTRIBUTE("$CLASS_NAME", "$ATTRIBUTE_NAME", "'"'$MESSAGE'"'") BEGIN {" >> create_test_tmp.txt
-				echo "        /* code */" >> create_test_tmp.txt
-				echo "    } END" >> create_test_tmp.txt
+				echo "    ASSERT_CLASS_ATTRIBUTE("$CLASS_NAME", "$ATTRIBUTE_NAME", "'"'$MESSAGE'"'");" >> create_test_tmp.txt
 				whiptail --title "Create Test" --msgbox "Assert for class "$CLASS_NAME" for attribute "$ATTRIBUTE_NAME" was added successfully!" 8 78
 				;;
 			"Assert Class Attribute Sig")
@@ -450,9 +497,7 @@ function create_test {
 					COMMAND="utf"
 					continue
 				fi
-				echo "    ASSERT_CLASS_ATTRIBUTE_SIGNATURE("$CLASS_NAME", "$ATTRIBUTE_NAME", "$SIGNATURE_NAME", "'"'$MESSAGE'"'") BEGIN {" >> create_test_tmp.txt
-				echo "        /* code */" >> create_test_tmp.txt
-				echo "    } END" >> create_test_tmp.txt
+				echo "    ASSERT_CLASS_ATTRIBUTE_SIGNATURE("$CLASS_NAME", "$ATTRIBUTE_NAME", "$SIGNATURE_NAME", "'"'$MESSAGE'"'");" >> create_test_tmp.txt
 				whiptail --title "Create Test" --msgbox "Assert signature for attribute "$ATTRIBUTE_NAME" in class "$CLASS_NAME" was added successfully!" 8 78
 				;;
 			"Assert Class Method")
@@ -491,9 +536,7 @@ function create_test {
 					COMMAND="utf"
 					continue
 				fi
-				echo "    ASSERT_CLASS_METHOD("$CLASS_NAME", "$METHOD_NAME", "'"'$MESSAGE'"'") BEGIN {" >> create_test_tmp.txt
-				echo "        /* code */" >> create_test_tmp.txt
-				echo "    } END" >> create_test_tmp.txt
+				echo "    ASSERT_CLASS_METHOD("$CLASS_NAME", "$METHOD_NAME", "'"'$MESSAGE'"'");" >> create_test_tmp.txt
 				whiptail --title "Create Test" --msgbox "Assert for class "$CLASS_NAME" for method "$METHOD_NAME" was added successfully!" 8 78
 				;;
 			"Assert Class Method Sig")
@@ -547,9 +590,7 @@ function create_test {
 					COMMAND="utf"
 					continue
 				fi
-				echo "    ASSERT_CLASS_METHOD_SIGNATURE("$CLASS_NAME", "$METHOD_NAME", "$SIGNATURE_NAME", "'"'$MESSAGE'"'") BEGIN {" >> create_test_tmp.txt
-				echo "        /* code */" >> create_test_tmp.txt
-				echo "    } END" >> create_test_tmp.txt
+				echo "    ASSERT_CLASS_METHOD_SIGNATURE("$CLASS_NAME", "$METHOD_NAME", "$SIGNATURE_NAME", "'"'$MESSAGE'"'");" >> create_test_tmp.txt
 				whiptail --title "Create Test" --msgbox "Assert signature for method "$METHOD_NAME" in class "$CLASS_NAME" was added successfully!" 8 78
 				;;
 			"Assert Class Constructor")
@@ -599,7 +640,9 @@ function create_test {
 			"Save & Exit")
 				if (whiptail --title "Save & Exit" --yesno "Do you want to save changes?" 8 78); then
 					whiptail --title "Save & Exit" --msgbox "Test "$SUITE_NAME"::"$TEST_NAME" was created!" 8 78
+					echo '' >> create_test_tmp.txt
 					echo "}" >> create_test_tmp.txt
+					echo '' >> create_test_tmp.txt
 					cat create_test_tmp.txt >> tests.h
 					rm create_test_tmp.txt
 					COMMAND="utf"
