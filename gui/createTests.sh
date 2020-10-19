@@ -891,7 +891,13 @@ function create_test {
 					break
 				done
 		        echo "    ASSERT_CLASS_CONSTRUCTOR("'"'$MESSAGE'"'", "$CLASS_NAME", "$ALL_PARAMETERS") BEGIN {" >> create_test_tmp.txt
-				echo "        /* code */" >> create_test_tmp.txt
+		        
+		        
+		        
+																	##########    TODO    ##########
+				
+				
+				
 				echo "    } END" >> create_test_tmp.txt
 				whiptail --title "Create Test" --msgbox "Assert constructor for class "$CLASS_NAME" was added successfully!" 8 78	        	
 				;;
