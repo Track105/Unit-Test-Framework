@@ -1468,11 +1468,15 @@ void Evaluation::loadTestCases(string fname) {
 		outputs.push_back(output);
 	}
 	if (state == inrequire) {
-		removeLastNL(require);
+		while (require[require.size() - 1] == '\n') {
+			removeLastNL(require);
+		}
 		reqs.push_back(require);
 	}
 	if (state == independ) {
-		removeLastNL(depend);
+		while (depend[depend.size() - 1] == '\n') {
+			removeLastNL(depend);
+		}
 		depends.push_back(depend);
 	}
 	if (inCase) { //Last case => save current
