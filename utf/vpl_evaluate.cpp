@@ -325,7 +325,7 @@ const char **TestCase::envv = NULL;
 Evaluation* Evaluation::singlenton = NULL;
 void recursiveFindRequirementsAndDependencies(const std::vector<TestCase> &testCases, const TestCase &testCase, 
 							   const std::unordered_map<std::string, std::pair<bool, std::vector<std::string>>> &requirements, bool &allRequirementsPassed,
-							   std::unordered_map<std::string, std::set<std::string>> &errorMessages);
+							   std::unordered_map<std::string, std::vector<std::string>> &errorMessages);
 std::unordered_map<std::string, std::pair<bool, std::vector<std::string>>> TestCase::requirements = std::unordered_map<std::string, std::pair<bool, std::vector<std::string>>>{};
 
 
@@ -1502,7 +1502,7 @@ void Evaluation::addFatalError(const char *m) {
 }
 
 void Evaluation::runTests() {
-	std::unordered_map<std::string, std::set<std::string>> errorMessages;
+	std::unordered_map<std::string, std::vector<std::string>> errorMessages;
 	if (testCases.size() == 0) {
 		return;
 	}
@@ -1514,10 +1514,19 @@ void Evaluation::runTests() {
 	nruns = 0;
 	grade = grademax;
 	float defaultGradeReduction = (grademax - grademin) / testCases.size();
-	int timeout = maxtime / testCases.size();
+	int testsWithOutput = 0;
+	for (int i = 0; i < testCases.size(); i++) {
+	    if (testCases[i].getOutputSize() > 0) {
+	        testsWithOutput++;   
+	    }
+	}
+	int timeout = 0;
+	if (testsWithOutput > 0) {
+		timeout = maxtime / testsWithOutput;
+	}
 	for (int i = 0; i < testCases.size(); i++) {
 		printf("Testing %d/%lu : %s\n",i+1,(unsigned long)testCases.size(),testCases[i].getCaseDescription().c_str());
-		if (timeout <= 1 || Timer::elapsedTime() >= maxtime) {
+		if ((testCases[i].getOutputSize() > 0 && timeout <= 1) || Timer::elapsedTime() >= maxtime) {
 			grade = grademin;
 			addFatalError("Global timeout");
 			return;
@@ -1541,7 +1550,7 @@ void Evaluation::runTests() {
 			if (!requirementPassed) {
 				for (int k = 0; k < TestCase::requirements[testCases[i].req[j]].second.size(); k++) {
 					std::string str_error_number = std::to_string(error_number++) + std::string(") ");
-					errorMessages[testCases[i].getCaseDescription()].insert(str_error_number + TestCase::requirements[testCases[i].req[j]].second[k]);
+					errorMessages[testCases[i].getCaseDescription()].push_back(str_error_number + TestCase::requirements[testCases[i].req[j]].second[k]);
 				}
 			}
 			
@@ -1554,7 +1563,7 @@ void Evaluation::runTests() {
 			if (!singleDependsPassed) {
 				allDependsPassed = false;
 				std::string str_error_number = std::to_string(error_number++) + std::string(") ");
-				errorMessages[testCases[i].getCaseDescription()].insert(str_error_number + std::string("Requirements for <") + name_dependency + std::string("> are not satisfied!\n"));
+				errorMessages[testCases[i].getCaseDescription()].push_back(str_error_number + std::string("Requirements for <") + name_dependency + std::string("> are not satisfied!\n"));
 			}
 			singleDependsPassed = true;
 		}
@@ -1679,7 +1688,7 @@ void setSignalsCatcher() {
 
 void recursiveFindRequirementsAndDependencies(const std::vector<TestCase> &testCases, const TestCase &testCase,
 							   const std::unordered_map<std::string, std::pair<bool, std::vector<std::string>>> &requirements, bool &allRequirementsPassed,
-							   std::unordered_map<std::string, std::set<std::string>> &errorMessages) {
+							   std::unordered_map<std::string, std::vector<std::string>> &errorMessages) {
 	
 	for (int i = 0; i < testCase.req.size(); i++) {
 		bool requirementPassed = TestCase::requirements[testCase.req[i]].first;

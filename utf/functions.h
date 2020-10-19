@@ -213,6 +213,7 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 	                                       utf::sig_check<signature, &T::function_name>::value>> : std::true_type {}
 	                                       
 #define CLASS(class_name)                                                                                                                                                       \
+	class class_name;                                                                                                                                                           \
 	static bool __class_##class_name##_exists__ = false
 	                                       
 template<typename T>
