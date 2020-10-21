@@ -47,6 +47,7 @@ else
 	cat student_impl.txt > vpl_evaluate.cpp
 	sed -i '1s/^/struct __HACK__ {\n/' student_impl.txt
 	echo "};" >> student_impl.txt
+	sed -i -E 's/\s*using\s+namespace\s+[A-Za-z0-9:_]+\s*;//g' student_impl.txt
 	cat student_impl.txt >> vpl_evaluate.cpp
 	cat saved_vpl_evaluate.cpp >> vpl_evaluate.cpp
 	rm -f saved_vpl_evaluate.cpp
