@@ -37,6 +37,8 @@ else
     mv functions.h_ functions.h
     mv structures.h_ structures.h
     mv tests.h_ tests.h
+    
+    grep -e "^\s*CLASS" tests.h | cut -d'(' -f 2 | cut -d')' -f 1 > classes.txt
 	
 	let prev_line_main=$main_line-1
 	head -n $prev_line_main $main_file > student_impl.txt
@@ -48,10 +50,15 @@ else
 	sed -i '1s/^/struct __HACK__ {\n/' student_impl.txt
 	echo "};" >> student_impl.txt
 	sed -i -E 's/\s*using\s+namespace\s+[A-Za-z0-9:_]+\s*;//g' student_impl.txt
+	while IFS= read -r class
+	do
+		sed -i '2s/^/class '${class}';\n/' student_impl.txt
+	done < "classes.txt"
 	cat student_impl.txt >> vpl_evaluate.cpp
 	cat saved_vpl_evaluate.cpp >> vpl_evaluate.cpp
 	rm -f saved_vpl_evaluate.cpp
 	rm -f student_impl.txt
+	rm -f classes.txt
 
 	#avoid conflict with C++ compilation
 	./vpl_run.sh
