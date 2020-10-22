@@ -15,6 +15,7 @@
 #include <functional>
 #include <unordered_map>
 #include <sstream>
+#include <iomanip>
 
 #define RUN_ALL_TESTS() RUN(suites, TestCase::requirements)
 
@@ -119,9 +120,17 @@ std::string to_string(std::string str) {
 }
 
 template <typename T>
-std::enable_if_t<!std::is_convertible<T, std::string>::value, std::string> to_string(T&& value) {
+std::enable_if_t<!std::is_convertible<T, std::string>::value, std::string> to_string(T value) {
     using std::to_string;
-    return std::to_string(std::forward<T>(value));
+    std::string converted;
+    if (std::is_floating_point<decltype(value)>::value) {
+    	std::stringstream ss;
+		ss << std::fixed << std::setprecision(0) << value * 1000;
+		converted = ss.str();
+    } else {
+    	converted = std::to_string(std::forward<T>(value));
+    }
+    return converted;
 }
 
 }
