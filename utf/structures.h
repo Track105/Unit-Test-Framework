@@ -120,10 +120,10 @@ std::string to_string(std::string str) {
 }
 
 template <typename T>
-std::enable_if_t<!std::is_convertible<T, std::string>::value, std::string> to_string(T value) {
+std::enable_if_t<!std::is_convertible<T, std::string>::value, std::string> to_string(T&& value) {
     using std::to_string;
     std::string converted;
-    if (std::is_floating_point<decltype(value)>::value) {
+    if (std::is_floating_point<typename std::remove_reference<decltype(value)>::type>::value) {
     	std::stringstream ss;
 		ss << std::fixed << std::setprecision(0) << value * 1000;
 		converted = ss.str();
