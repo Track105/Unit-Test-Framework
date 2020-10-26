@@ -48,6 +48,13 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
 								   __class_##class_name##_has_method_##method_name##__ == true });                                                                              \
 	END
+
+#define ASSERT_CLASS_METHOD_SIGNATURE(class_name, method_name, template_postfix, message)                                                                                       \
+	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
+	const bool __class_##class_name##_has_method_##method_name##_with_##template_postfix##__ = __has_method_with_sig_##template_postfix##__<class_name>::value;                 \
+	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
+			 __class_##class_name##_has_method_##method_name##_with_##template_postfix##__ == true });                                                                          \
+	END
 	
 #define ASSERT_CLASS_ATTRIBUTE(class_name, attribute_name, message)                                                                                                             \
 	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
@@ -61,13 +68,6 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 	const bool __class_##class_name##_has_attribute_##attribute_name##_with_##template_postfix##__ = __has_attribute_with_sig_##template_postfix##__<class_name>::value;        \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
 			 __class_##class_name##_has_attribute_##attribute_name##_with_##template_postfix##__ == true });                                                                    \
-	END
-	
-#define ASSERT_CLASS_METHOD_SIGNATURE(class_name, method_name, template_postfix, message)                                                                                       \
-	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
-	const bool __class_##class_name##_has_method_##method_name##_with_##template_postfix##__ = __has_method_with_sig_##template_postfix##__<class_name>::value;                 \
-	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
-			 __class_##class_name##_has_method_##method_name##_with_##template_postfix##__ == true });                                                                          \
 	END
 	
 #define ASSERT_FUNCTION(function_name, message)                                                                                                                                 \
@@ -90,12 +90,12 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 									   __class_##class_name##_exists__ == true });
     
 #define ASSERT_CALL_CLASS(class_name)                                                                                                                                           \
-	utf::call_if_class_defined<struct class_name>(holder, [&](utf::Holder<utf::any> *holder, auto* ptr_##class_name) {                                                          \
+	utf::call_if_class_defined<struct class_name>(holder, [&](utf::Holder<utf::any> *holder, auto* ptr_##class_name) constexpr -> void {                                        \
 		using class_name = std::decay_t<decltype(*ptr_##class_name)>;                                                                                                           \
 		__class_##class_name##_exists__ = true;
 		
 #define ASSERT_CALL_FUNCTION(function_name)                                                                                                                                     \
-	utf::call_if_class_defined<struct __HACK__>(holder, [&](utf::Holder<utf::any> *holder, auto* ptr_##function_name) {                                                         \
+	utf::call_if_class_defined<struct __HACK__>(holder, [&](utf::Holder<utf::any> *holder, auto* ptr_##function_name) constexpr -> void {                                       \
 		using __HACK__ = std::decay_t<decltype(*ptr_##function_name)>;                                                                                                          \
 
 #define BEGIN
