@@ -71,14 +71,14 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 	END
 	
 #define ASSERT_FUNCTION(function_name, message)                                                                                                                                 \
-	ASSERT_CALL_FUNCTION(function_name)                                                                                                                                                      \
+	ASSERT_CALL_FUNCTION(function_name)                                                                                                                                         \
 	const bool __class___HACK___has_function_##function_name##__ = __has_function_##function_name##__<__HACK__>::value;                                                         \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
 								   __class___HACK___has_function_##function_name##__ == true });                                                                                \
 	END
 	
 #define ASSERT_FUNCTION_SIGNATURE(function_name, template_postfix, message)                                                                                                     \
-	ASSERT_CALL_FUNCTION(function_name)                                                                                                                                                      \
+	ASSERT_CALL_FUNCTION(function_name)                                                                                                                                         \
 	const bool __class___HACK___has_function_##function_name##_with_##template_postfix##__ = __has_function_with_sig_##template_postfix##__<__HACK__>::value;                   \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
 			 __class___HACK___has_function_##function_name##_with_##template_postfix##__ == true });                                                                            \
@@ -90,13 +90,13 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 									   __class_##class_name##_exists__ == true });
     
 #define ASSERT_CALL_CLASS(class_name)                                                                                                                                           \
-	utf::call_if_class_defined<struct class_name>(holder, [&](utf::Holder<utf::any> *holder, auto* ptr_##class_name) {                                                                                                                \
-		using class_name = std::decay_t<decltype(*ptr_##class_name)>;                                                                                                                          \
+	utf::call_if_class_defined<struct class_name>(holder, [&](utf::Holder<utf::any> *holder, auto* ptr_##class_name) {                                                          \
+		using class_name = std::decay_t<decltype(*ptr_##class_name)>;                                                                                                           \
 		__class_##class_name##_exists__ = true;
 		
-#define ASSERT_CALL_FUNCTION(function_name)                                                                                                                                                  \
-	utf::call_if_class_defined<struct __HACK__>(holder, [&](utf::Holder<utf::any> *holder, auto* ptr_##function_name) {                                                                                                                  \
-		using __HACK__ = std::decay_t<decltype(*ptr_##function_name)>;                                                                                                                            \
+#define ASSERT_CALL_FUNCTION(function_name)                                                                                                                                     \
+	utf::call_if_class_defined<struct __HACK__>(holder, [&](utf::Holder<utf::any> *holder, auto* ptr_##function_name) {                                                         \
+		using __HACK__ = std::decay_t<decltype(*ptr_##function_name)>;                                                                                                          \
 
 #define BEGIN
 #define END });
