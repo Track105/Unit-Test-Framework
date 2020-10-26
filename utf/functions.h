@@ -90,12 +90,12 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 									   __class_##class_name##_exists__ == true });
     
 #define ASSERT_CALL_CLASS(class_name)                                                                                                                                           \
-	utf::call_if_class_defined<struct class_name>([&](auto* ptr_##class_name) {                                                                                                                \
+	utf::call_if_class_defined<struct class_name>(holder, [&](utf::Holder<utf::any> *holder, auto* ptr_##class_name) {                                                                                                                \
 		using class_name = std::decay_t<decltype(*ptr_##class_name)>;                                                                                                                          \
 		__class_##class_name##_exists__ = true;
 		
 #define ASSERT_CALL_FUNCTION(function_name)                                                                                                                                                  \
-	utf::call_if_class_defined<struct __HACK__>([&](auto* ptr_##function_name) {                                                                                                                  \
+	utf::call_if_class_defined<struct __HACK__>(holder, [&](utf::Holder<utf::any> *holder, auto* ptr_##function_name) {                                                                                                                  \
 		using __HACK__ = std::decay_t<decltype(*ptr_##function_name)>;                                                                                                                            \
 
 #define BEGIN

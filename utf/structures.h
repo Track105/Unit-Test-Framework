@@ -80,15 +80,10 @@ template<typename T>
 constexpr bool is_complete_type_v<T, std::void_t<decltype(sizeof(T))>> = true;
     
 template<typename T, typename Callable>
-void call_if_class_defined(Callable&& callable) {
+void call_if_class_defined(utf::Holder<utf::any> *holder, Callable&& callable) {
   if constexpr (utf::is_complete_type_v<T>) {
-    callable(static_cast<T*>(nullptr));
+    callable(holder, static_cast<T*>(nullptr));
   }
-}
-
-template<typename Callable>
-void call_if_function_defined(Callable&& callable) {
-    callable();
 }
 
 template <typename... Args>
