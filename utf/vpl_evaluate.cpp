@@ -1538,9 +1538,6 @@ void Evaluation::runTests() {
 		if (maxtime - Timer::elapsedTime() < timeout) { //Try to run last case
 			timeout = maxtime - Timer::elapsedTime();
 		}
-		if (testCases[i].getOutputSize() > 0) {
-			testCases[i].runTest(timeout);
-		}
 		
 		bool allRequirementsPassed = true;
 		bool singleDependsPassed = true;
@@ -1571,8 +1568,10 @@ void Evaluation::runTests() {
 			}
 			singleDependsPassed = true;
 		}
-		
 		nruns++;
+		if (testCases[i].getOutputSize() > 0 && allRequirementsPassed && allDependsPassed) {
+			testCases[i].runTest(timeout);
+		}
 		if ((testCases[i].getOutputSize() > 0 && !testCases[i].isCorrectResult()) || !allRequirementsPassed || !allDependsPassed) {
 			if (Stop::isTERMRequested())
 				break;
