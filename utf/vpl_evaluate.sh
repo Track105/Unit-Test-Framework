@@ -19,6 +19,14 @@ else
     mv functions.h functions.h_
     mv structures.h structures.h_
     mv tests.h tests.h_
+    
+    get_source_files h hpp
+    
+	for file in $SOURCE_FILES
+	do
+	    grep -v "#ifndef" $file > __temp__.txt && mv __temp__.txt $file
+	    grep -v "#endif" $file > __temp__.txt && mv __temp__.txt $file
+	done
 	
 	get_source_files cpp h hpp
 	
@@ -80,7 +88,8 @@ else
 		echo "const int VPL_MAXTIME=$VPL_MAXTIME;" >>vpl_evaluate.cpp
 		cat vpl_evaluate.cpp.save >> vpl_evaluate.cpp
 		check_program g++
-		g++ -std=c++17 vpl_evaluate.cpp -g -lm -lutil -o .vpl_tester
+		SOURCE_FILES_WITHOUT_MAIN=${SOURCE_FILES//$main_file/}
+		g++ -std=c++17 $SOURCE_FILES_WITHOUT_MAIN vpl_evaluate.cpp -g -lm -lutil -o .vpl_tester
 		mv functions.h functions.h_
 		mv tests.h tests.h_
 		mv structures.h structures.h_
