@@ -20,26 +20,57 @@ else
     mv structures.h structures.h_
     mv tests.h tests.h_
     
-    get_source_files h hpp
-    
+    SOURCE_FILES=""
+
+    header_files=$((`ls -1 *.h 2>/dev/null | wc -l` + `ls -1 *.hpp 2>/dev/null | wc -l`))
+    if [[ $header_files != 0 ]]; then
+        get_source_files h hpp
+    fi
+
 	for file in $SOURCE_FILES
 	do
 	    grep -v "#ifndef" $file > __temp__.txt && mv __temp__.txt $file
 	    grep -v "#endif" $file > __temp__.txt && mv __temp__.txt $file
 	done
 	
-	get_source_files cpp h hpp
+	get_source_files cpp
 	
 	for file in $SOURCE_FILES
 	do
 	    line=`zgrep -nE "^\s*int\s+main\s*()\s*" $file | cut -f1 -d:`
-	    if [[ ! -z $line ]]
-	    then
+	    if [[ ! -z $line ]]; then
 	        main_file="$file"
 	        main_line="$line"
 	        break
 	    fi
 	done
+	
+	tail -n +$main_line $main_file > student_after_main.txt
+	count_lines=0
+	count_brackets=0
+	first_occ=0
+	while IFS= read -r line
+	do
+		
+		for (( i=0; i<${#line}; i++ )); do   
+
+			if [ "${line:$i:1}" == "}" ]; then
+				count_brackets=$(($count_brackets - 1))
+			fi
+			if [ "${line:$i:1}" == "{" ]; then
+				count_brackets=$(($count_brackets + 1))
+				first_occ=1
+			fi
+					
+		done
+		count_lines=$(($count_lines + 1))
+		if [[ $first_occ == 1 && $count_brackets == 0 ]]; then
+			break
+		fi
+
+	done < "student_after_main.txt"
+
+	get_source_files cpp h hpp
 	
 	mv vpl_evaluate.cpp_ vpl_evaluate.cpp
     mv functions.h_ functions.h
@@ -50,6 +81,8 @@ else
 	
 	let prev_line_main=$main_line-1
 	head -n $prev_line_main $main_file > student_impl.txt
+	tail -n +$(($count_lines+1)) student_after_main.txt >> student_impl.txt
+	sed -i -E 's/^\s*(\w+( )?\s*)(\*\s*){0,}\s*(\w+( )?\s*)\([^+%^]+?\)\s*\;\s*$//g' student_impl.txt
 	sed -i 's/class/struct/g' student_impl.txt
 	sed -i 's/private\s*:/public:/g' student_impl.txt
 	sed -i 's/protected\s*:/public:/g' student_impl.txt
@@ -57,7 +90,7 @@ else
 	cat student_impl.txt > vpl_evaluate.cpp
 	sed -i '1s/^/struct __HACK__ {\n/' student_impl.txt
 	echo "};" >> student_impl.txt
-	sed -i -E 's/\s*using\s+namespace\s+[A-Za-z0-9:_]+\s*;//g' student_impl.txt
+	sed -i -E 's/\s*using\s+namespace\s+[A-Za-z0-9:_]+\s*;\s*//g' student_impl.txt
 	while IFS= read -r class
 	do
 		sed -i '2s/^/class '${class}';\n/' student_impl.txt
@@ -67,6 +100,7 @@ else
 	rm -f saved_vpl_evaluate.cpp
 	rm -f student_impl.txt
 	rm -f classes.txt
+	rm -f student_after_main.txt
 
 	#avoid conflict with C++ compilation
 	./vpl_run.sh
@@ -116,10 +150,4 @@ else
     
     chmod +x vpl_execution
 fi
-
-
-
-
-
-
 
