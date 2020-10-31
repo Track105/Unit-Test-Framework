@@ -35,7 +35,21 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 
 #define ASSERT_LESS_OR_EQUAL(first_operand, second_operand, message)                                                                                                            \
     holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "<=", T(first_operand), T(second_operand), utf::to_string(first_operand) <= utf::to_string(second_operand) })
-                               
+    
+#define ASSERT_CLASS_INHERITANCE(base_class, derived_class, message)                                                                                                            \
+	ASSERT_CALL_CLASS(base_class)                                                                                                                                               \
+	ASSERT_CALL_CLASS(derived_class)                                                                                                                                            \
+	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
+								   std::is_base_of<base_class, derived_class>::value == true });                                                                                \
+	END                                                                                                                                                                         \
+	END
+
+#define ASSERT_CLASS_ABSTRACT(class_name, message)                                                                                                                              \
+	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
+	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
+								   std::is_abstract<class_name>::value == true });                                                                                \
+	END
+             
 #define ASSERT_CLASS_CONSTRUCTOR(message, class_name, ...)                                                                                                                      \
 	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
