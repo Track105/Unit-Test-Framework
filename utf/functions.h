@@ -47,7 +47,7 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 #define ASSERT_CLASS_ABSTRACT(class_name, message)                                                                                                                              \
 	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
-								   std::is_abstract<class_name>::value == true });                                                                                \
+								   std::is_abstract<class_name>::value == true });                                                                                              \
 	END
              
 #define ASSERT_CLASS_CONSTRUCTOR(message, class_name, ...)                                                                                                                      \
