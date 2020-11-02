@@ -1308,6 +1308,9 @@ void Evaluation::loadTestCases(string fname) {
 	int nlines = lines.size();
 	for (int i = 0; i < nlines; i++) {
 		string &line = lines[i];
+		if (line.empty()) {
+			continue;
+		}
 		size_t poseq;
 		if ((poseq = line.find('=')) != string::npos) {
 			tag = Tools::normalizeTag(line.substr(0, poseq + 1));

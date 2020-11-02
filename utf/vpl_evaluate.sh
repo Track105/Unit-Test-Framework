@@ -85,7 +85,7 @@ else
 	if [[ `grep -c ^ $main_file` != $all_lines ]]; then
 	    tail -n +$(($count_lines+1)) student_after_main.txt >> student_impl.txt
 	fi
-	sed -i -E 's/^\s*(\w+( )?\s*)(\*\s*){0,}\s*(\w+( )?\s*)\([^+%^]+?\)\s*\;\s*$//g' student_impl.txt
+	sed -i -E 's/^\s{0,1}(\w+( )?\s*)(\*\s*){0,}\s*(\w+( )?\s*)\([^+%^]+?\)\s*\;\s*$//g' student_impl.txt
 	sed -i 's/class/struct/g' student_impl.txt
 	sed -i 's/private\s*:/public:/g' student_impl.txt
 	sed -i 's/protected\s*:/public:/g' student_impl.txt
