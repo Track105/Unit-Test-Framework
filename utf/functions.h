@@ -98,6 +98,12 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 			 __class___HACK___has_function_##function_name##_with_##template_postfix##__ == true });                                                                            \
 	if constexpr (__class___HACK___has_function_##function_name##_with_##template_postfix##__)
 	
+#define IF(class_name, template_postfix, message)                                                                                                                               \
+	const bool __##class_name##_has_##template_postfix##__ = __has_entity_with_sig_##template_postfix##__<class_name>::value;                                                   \
+	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
+			 __##class_name##_has_##template_postfix##__ == true });                                                                                                            \
+	if constexpr (__##class_name##_has_##template_postfix##__)
+	
 #define ASSERT_CLASS(class_name, message)                                                                                                                                       \
 	ASSERT_CALL_CLASS(class_name) BEGIN { } END                                                                                                                                 \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
@@ -205,18 +211,28 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 #define CHECK_CLASS_ATTRIBUTE_SIGNATURE(attribute_name, signature, template_postfix)                                                                                            \
 	template<typename T, typename = std::true_type>                                                                                                                             \
 	struct __has_attribute_with_sig_##template_postfix##__ : std::false_type {};                                                                                                \
+	template<typename T, typename = std::true_type>                                                                                                                             \
+	struct __has_entity_with_sig_##template_postfix##__ : std::false_type {};                                                                                                   \
 			                                                                                                                                                                    \
 	template<typename T>                                                                                                                                                        \
 	struct __has_attribute_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                      \
+		                                   utf::sig_check<signature, &T::attribute_name>::value>> : std::true_type {};                                                          \
+	template<typename T>                                                                                                                                                        \
+	struct __has_entity_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                         \
 		                                   utf::sig_check<signature, &T::attribute_name>::value>> : std::true_type {}
                                       
 #define CHECK_CLASS_METHOD_SIGNATURE(method_name, signature, template_postfix)                                                                                                  \
 	template<typename T, typename = std::true_type>                                                                                                                             \
 	struct __has_method_with_sig_##template_postfix##__ : std::false_type {};                                                                                                   \
+	template<typename T, typename = std::true_type>                                                                                                                             \
+	struct __has_entity_with_sig_##template_postfix##__ : std::false_type {};                                                                                                   \
 		                                                                                                                                                                        \
 	template<typename T>                                                                                                                                                        \
 	struct __has_method_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                         \
-	                                       utf::sig_check<signature, &T::method_name>::value>> : std::true_type {}
+	                                       utf::sig_check<signature, &T::method_name>::value>> : std::true_type {};                                                             \
+	template<typename T>                                                                                                                                                        \
+	struct __has_entity_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                         \
+		                                   utf::sig_check<signature, &T::method_name>::value>> : std::true_type {}
 	                                       
 #define CHECK_FUNCTION_SIGNATURE(function_name, signature, template_postfix)                                                                                                    \
 	template<typename T, typename = std::true_type>                                                                                                                             \
