@@ -55,6 +55,12 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
 								   std::is_constructible<class_name, ##__VA_ARGS__>::value == 1 });                                                                             \
 	if constexpr (std::is_constructible<class_name, ##__VA_ARGS__>::value)
+	
+#define ASSERT_CLASS_DESTRUCTOR(message, class_name)                                                                                                                            \
+	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
+	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
+								   std::is_destructible<class_name>::value == 1 });                                                                                             \
+	if constexpr (std::is_destructible<class_name>::value)
 
 #define ASSERT_CLASS_METHOD(class_name, method_name, message)                                                                                                                   \
 	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
