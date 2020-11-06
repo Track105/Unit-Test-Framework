@@ -89,6 +89,12 @@ else
 	sed -i 's/class/struct/g' student_impl.txt
 	sed -i 's/private\s*:/public:/g' student_impl.txt
 	sed -i 's/protected\s*:/public:/g' student_impl.txt
+	sed -i 's/operator\s*+\s*/operatorPlus/g' student_impl.txt
+	sed -i 's/operator\s*\*\s*/operatorStar/g' student_impl.txt
+	sed -i 's/operator\s*^\s*/operatorHat/g' student_impl.txt
+	sed -i 's/operator\s*<<\s*/operatorStdout/g' student_impl.txt
+	sed -i 's/operator\s*>>\s*/operatorStdin/g' student_impl.txt
+	sed -i 's/operator\s*<\s*/operatorLess/g' student_impl.txt
 	cp vpl_evaluate.cpp saved_vpl_evaluate.cpp
 	cat student_impl.txt > vpl_evaluate.cpp
 	sed -i '1s/^/struct __HACK__ {\n/' student_impl.txt
