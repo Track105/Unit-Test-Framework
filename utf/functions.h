@@ -59,7 +59,7 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 #define ASSERT_CLASS_DESTRUCTOR(message, class_name)                                                                                                                            \
 	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
-								   std::is_destructible<class_name>::value == 1 });                                                                                             \
+								   !std::is_trivially_destructible<class_name>::value == 1 });                                                                                  \
 	END
 
 #define ASSERT_CLASS_METHOD(class_name, method_name, message)                                                                                                                   \

@@ -95,6 +95,7 @@ else
 	sed -i 's/operator\s*<<\s*/operatorStdout/g' student_impl.txt
 	sed -i 's/operator\s*>>\s*/operatorStdin/g' student_impl.txt
 	sed -i 's/operator\s*<\s*/operatorLess/g' student_impl.txt
+	sed -i 's/operator\s*>\s*/operatorGreater/g' student_impl.txt
 	cp vpl_evaluate.cpp saved_vpl_evaluate.cpp
 	cat student_impl.txt > vpl_evaluate.cpp
 	sed -i '1s/^/struct __HACK__ {\n/' student_impl.txt
