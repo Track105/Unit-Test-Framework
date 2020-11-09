@@ -292,6 +292,10 @@ public:
 	void addTestCase(string &input, vector<string> &output, vector<string> &reqs, vector<string> &depends,
 			string &caseDescription, float &gradeReduction);
 	void removeLastNL(string &s);
+	void removeLastWS(string &s);
+	void removeFirstWS(string &s);
+	void removeFirstNL(string &s);
+	void trim(string &s);
 	bool cutToEndTag(string &value, const string &endTag);
 	void loadTestCases(string fname);
 	bool loadParams();
@@ -1263,6 +1267,39 @@ void Evaluation::removeLastNL(string &s) {
 	}
 }
 
+void Evaluation::removeLastWS(string &s) {
+	if (s.size() > 0 && s[s.size() - 1] == ' ') {
+		s.resize(s.size() - 1);
+	}
+}
+
+void Evaluation::removeFirstNL(string &s) {
+	if (s.size() > 0 && s[0] == '\n') {
+		s.erase(s.begin());
+	}
+}
+
+void Evaluation::removeFirstWS(string &s) {
+	if (s.size() > 0 && s[0] == ' ') {
+		s.erase(s.begin());
+	}
+}
+
+void Evaluation::trim(string &s) {
+	while (s[s.size() - 1] == '\n') {
+		removeLastNL(s);
+	}
+	while (s[s.size() - 1] == ' ') {
+		removeLastWS(s);
+	}
+	while (s[0] == ' ') {
+		removeFirstWS(s);
+	}
+	while (s[0] == '\n') {
+		removeFirstNL(s);
+	}
+}
+
 bool Evaluation::cutToEndTag(string &value, const string &endTag) {
 	size_t pos;
 	if (endTag.size() && (pos = value.find(endTag)) != string::npos) {
@@ -1375,7 +1412,7 @@ void Evaluation::loadTestCases(string fname) {
 				}
 			} else if (tag.size() && (tag == INPUT_TAG || tag == OUTPUT_TAG
 					|| tag == GRADEREDUCTION_TAG || tag == CASE_TAG || tag == REQUIRES_TAG || tag == DEPENDS_ON_TAG)) {//New valid tag
-				removeLastNL(require);
+				trim(require);
 				reqs.push_back(require);
 				require = "";
 				state = regular;
@@ -1398,7 +1435,7 @@ void Evaluation::loadTestCases(string fname) {
 				}
 			} else if (tag.size() && (tag == INPUT_TAG || tag == OUTPUT_TAG
 					|| tag == GRADEREDUCTION_TAG || tag == CASE_TAG || tag == REQUIRES_TAG || tag == DEPENDS_ON_TAG)) {//New valid tag
-				removeLastNL(depend);
+				trim(depend);
 				depends.push_back(depend);
 				depend = "";
 				state = regular;
@@ -1471,15 +1508,11 @@ void Evaluation::loadTestCases(string fname) {
 		outputs.push_back(output);
 	}
 	if (state == inrequire) {
-		while (require[require.size() - 1] == '\n') {
-			removeLastNL(require);
-		}
+		trim(require);
 		reqs.push_back(require);
 	}
 	if (state == independ) {
-		while (depend[depend.size() - 1] == '\n') {
-			removeLastNL(depend);
-		}
+		trim(depend);
 		depends.push_back(depend);
 	}
 	if (inCase) { //Last case => save current
@@ -1548,13 +1581,29 @@ void Evaluation::runTests() {
 		
 		int error_number = 1;
 		for (int j = 0; j < testCases[i].req.size(); j++) {
-			bool requirementPassed = TestCase::requirements[testCases[i].req[j]].first;
+			bool requirementPassed = false;
+			std::string currentReq = testCases[i].req[j];
+			uint64_t orIndex = currentReq.find('|');
+			while (orIndex != std::string::npos) {
+				std::string parsedReq = currentReq.substr(0, orIndex);
+				trim(parsedReq);
+				requirementPassed |= TestCase::requirements[parsedReq].first;
+				if (!requirementPassed) {
+					for (int k = 0; k < TestCase::requirements[parsedReq].second.size(); k++) {
+						std::string str_error_number = std::to_string(error_number++) + std::string(") ");
+						errorMessages[testCases[i].getCaseDescription()].push_back(str_error_number + TestCase::requirements[parsedReq].second[k]);
+					}
+				}
+				currentReq = currentReq.substr(orIndex + 1, currentReq.size());
+				orIndex = currentReq.find('|');
+			}
+			trim(currentReq);
+			requirementPassed |= TestCase::requirements[currentReq].first;
 			allRequirementsPassed &= requirementPassed;
-			
 			if (!requirementPassed) {
-				for (int k = 0; k < TestCase::requirements[testCases[i].req[j]].second.size(); k++) {
+				for (int k = 0; k < TestCase::requirements[currentReq].second.size(); k++) {
 					std::string str_error_number = std::to_string(error_number++) + std::string(") ");
-					errorMessages[testCases[i].getCaseDescription()].push_back(str_error_number + TestCase::requirements[testCases[i].req[j]].second[k]);
+					errorMessages[testCases[i].getCaseDescription()].push_back(str_error_number + TestCase::requirements[currentReq].second[k]);
 				}
 			}
 			
