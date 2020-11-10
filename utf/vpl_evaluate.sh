@@ -31,6 +31,16 @@ else
 	do
 	    grep -v "#ifndef" $file > __temp__.txt && mv __temp__.txt $file
 	    grep -v "#endif" $file > __temp__.txt && mv __temp__.txt $file
+    	sed -i 's/class/struct/g' $file
+    	sed -i 's/private\s*:/public:/g' $file
+    	sed -i 's/protected\s*:/public:/g' $file
+    	sed -i 's/operator\s*+\s*/operatorPlus/g' $file
+    	sed -i 's/operator\s*\*\s*/operatorStar/g' $file
+    	sed -i 's/operator\s*^\s*/operatorHat/g' $file
+    	sed -i 's/operator\s*<<\s*/operatorStdout/g' $file
+    	sed -i 's/operator\s*>>\s*/operatorStdin/g' $file
+    	sed -i 's/operator\s*<\s*/operatorLess/g' $file
+    	sed -i 's/operator\s*>\s*/operatorGreater/g' $file
 	done
 	
 	get_source_files cpp
@@ -85,7 +95,7 @@ else
 	if [[ `grep -c ^ $main_file` != $all_lines ]]; then
 	    tail -n +$(($count_lines+1)) student_after_main.txt >> student_impl.txt
 	fi
-	sed -i -E 's/^\s{0,1}[A-Za-z_][A-Za-z0-9_\*\&]*\s+[\*\&A-Za-z_]*[A-Za-z0-9_]*\s*\((\s*[A-Za-z_][A-Za-z0-9_\*\&]*\s+[\*\&A-Za-z_]*[A-Za-z0-9_]*\s*,{0,1}\s*){1,}\s*\)\s*;\s*//g' student_impl.txt
+	sed -i -E 's/^\s{0,1}(\w+( )?\s*)(\*\s*){0,}\s*(\w+( )?\s*)\([^+%^]+?\)\s*\;\s*$//g' student_impl.txt
 	sed -i 's/class/struct/g' student_impl.txt
 	sed -i 's/private\s*:/public:/g' student_impl.txt
 	sed -i 's/protected\s*:/public:/g' student_impl.txt
