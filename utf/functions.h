@@ -35,7 +35,7 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 
 #define ASSERT_LESS_OR_EQUAL(first_operand, second_operand, message)                                                                                                            \
     holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "<=", T(first_operand), T(second_operand), utf::to_string(first_operand) <= utf::to_string(second_operand) })
-    
+
 #define ASSERT_CLASS_INHERITANCE(base_class, derived_class, message)                                                                                                            \
 	ASSERT_CALL_CLASS(base_class)                                                                                                                                               \
 	ASSERT_CALL_CLASS(derived_class)                                                                                                                                            \
@@ -251,6 +251,16 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 #define CLASS(class_name)                                                                                                                                                       \
 	class class_name;                                                                                                                                                           \
 	static bool __class_##class_name##_exists__ = false
+
+#define CHECK_CONTAINER(Container, Type)                                                                                                                                        \
+	auto __check_##Container##_of_##Type##__(std::Container<Type>* cont, uint64_t index) -> std::string {                                                                       \
+		std::Container<Type>::iterator it = cont->begin() + index;                                                                                                              \
+		if (it < cont->end()) {                                                                                                                                                 \
+			return utf::to_string(*it);                                                                                                                                         \
+		} else {                                                                                                                                                                \
+			return "Index of out bound!";                                                                                                                                       \
+		}                                                                                                                                                                       \
+	}
 	                                       
 template<typename T>
 constexpr void RUN(const std::unordered_map<std::string, std::vector<utf::Test<T>>>& suites, std::unordered_map<std::string, std::pair<bool, std::vector<std::string>>>& requirements) {
