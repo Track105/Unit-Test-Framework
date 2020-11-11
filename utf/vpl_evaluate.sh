@@ -34,14 +34,18 @@ else
     	sed -i 's/class/struct/g' $file
     	sed -i 's/private\s*:/public:/g' $file
     	sed -i 's/protected\s*:/public:/g' $file
+    	sed -i 's/operator\s*\+\s*=\s*/operatorPlusEqual/g' $file
     	sed -i 's/operator\s*+\s*/operatorPlus/g' $file
+    	sed -i 's/operator\s*-\s*=\s*/operatorMinusEqual/g' $file
+    	sed -i 's/operator\s*-\s*/operatorMinus/g' $file
     	sed -i 's/operator\s*\*\s*/operatorStar/g' $file
     	sed -i 's/operator\s*^\s*/operatorHat/g' $file
-    	sed -i 's/operator\s*<<\s*/operatorStdout/g' $file
-    	sed -i 's/operator\s*>>\s*/operatorStdin/g' $file
+    	sed -i 's/operator\s*<\s*<\s*/operatorStdout/g' $file
+    	sed -i 's/operator\s*>\s*>\s*/operatorStdin/g' $file
     	sed -i 's/operator\s*<\s*/operatorLess/g' $file
     	sed -i 's/operator\s*>\s*/operatorGreater/g' $file
     	sed -i 's/operator\s*!\s*/operatorNot/g' $file
+    	sed -i 's/operator\s*=\s*/operatorEqual/g' $file
 	done
 	
 	get_source_files cpp
@@ -96,18 +100,23 @@ else
 	if [[ `grep -c ^ $main_file` != $all_lines ]]; then
 	    tail -n +$(($count_lines+1)) student_after_main.txt >> student_impl.txt
 	fi
-	sed -i -E 's/^\s{0,1}(\w+( )?\s*)(\*\s*){0,}\s*(\w+( )?\s*)\([^+%^]+?\)\s*\;\s*$//g' student_impl.txt
+	sed -i -E 's/^\s{0,1}[A-Za-z_][A-Za-z0-9_\*\&]*\s+[\*\&A-Za-z_]*[A-Za-z0-9_]*\s*\((\s*[A-Za-z_][A-Za-z0-9_\*\&]*\s+[\*\&A-Za-z_]*[A-Za-z0-9_]*\s*,{0,1}\s*){1,}\s*\)\s*;\s*$//g' student_impl.txt
 	sed -i 's/class/struct/g' student_impl.txt
 	sed -i 's/private\s*:/public:/g' student_impl.txt
 	sed -i 's/protected\s*:/public:/g' student_impl.txt
+	sed -i 's/operator\s*+\s*=\s*/operatorPlusEqual/g' student_impl.txt
 	sed -i 's/operator\s*+\s*/operatorPlus/g' student_impl.txt
+	sed -i 's/operator\s*-\s*=\s*/operatorMinusEqual/g' student_impl.txt
+	sed -i 's/operator\s*-\s*/operatorMinus/g' student_impl.txt
 	sed -i 's/operator\s*\*\s*/operatorStar/g' student_impl.txt
 	sed -i 's/operator\s*^\s*/operatorHat/g' student_impl.txt
-	sed -i 's/operator\s*<<\s*/operatorStdout/g' student_impl.txt
-	sed -i 's/operator\s*>>\s*/operatorStdin/g' student_impl.txt
+	sed -i 's/operator\s*<\s*<\s*/operatorStdout/g' student_impl.txt
+	sed -i 's/operator\s*>\s*>\s*/operatorStdin/g' student_impl.txt
 	sed -i 's/operator\s*<\s*/operatorLess/g' student_impl.txt
 	sed -i 's/operator\s*>\s*/operatorGreater/g' student_impl.txt
 	sed -i 's/operator\s*!\s*/operatorNot/g' student_impl.txt
+	sed -i 's/operator\s*=\s*/operatorEqual/g' student_impl.txt
+	
 	cp vpl_evaluate.cpp saved_vpl_evaluate.cpp
 	cat student_impl.txt > vpl_evaluate.cpp
 	sed -i '1s/^/struct __HACK__ {\n/' student_impl.txt

@@ -126,9 +126,6 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 
 #define BEGIN
 #define END });
-
-#define CHECK_FUNC_SIGNATURE(function_name, signature)                                                                                                                          \
-	std::string(typeid(function_name).name()) == std::string(typeid(signature).name()).substr(1)
 	
 #define CHECK_CLASS_METHOD(method_name)                                                                                                                                         \
 	template<typename T, typename... Ts>                                                                                                                                        \
