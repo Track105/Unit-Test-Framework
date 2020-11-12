@@ -56,6 +56,12 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 								   std::is_constructible<class_name, ##__VA_ARGS__>::value == 1 });                                                                             \
 	if constexpr (std::is_constructible<class_name, ##__VA_ARGS__>::value)
 	
+#define ASSERT_CLASS_COPY_CONSTRUCTOR(message, class_name, ...)                                                                                                                 \
+	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
+	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
+								   !std::is_trivially_copy_constructible<class_name, ##__VA_ARGS__>::value == 1 });                                                             \
+	if constexpr (std::is_constructible<class_name, ##__VA_ARGS__>::value)
+	
 #define ASSERT_CLASS_DESTRUCTOR(message, class_name)                                                                                                                            \
 	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
@@ -104,6 +110,20 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 			 __class___HACK___has_function_##function_name##_with_##template_postfix##__ == true });                                                                            \
 	if constexpr (__class___HACK___has_function_##function_name##_with_##template_postfix##__)
 	
+#define ASSERT_CLASS_OPERATOR(class_name, operator_template, message)                                                                                                           \
+	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
+	const bool __class_##class_name##_has_operator_##operator_template##__ = __has_operator_##operator_template##__<class_name>::value;                                         \
+	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
+								  __class_##class_name##_has_operator_##operator_template##__ == true });                                                                       \
+	END
+	
+#define ASSERT_CLASS_OPERATOR_SIGNATURE(class_name, operator_name, template_postfix, message)                                                                                   \
+	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
+	const bool __class_##class_name##_has_operator_with_##template_postfix##__ = __has_operator_with_sig_##template_postfix##__<class_name>::value;                             \
+	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
+			 __class_##class_name##_has_operator_with_##template_postfix##__ == true });                                                                                        \
+	END
+
 #define IF(class_name, template_postfix, message)                                                                                                                               \
 	const bool __##class_name##_has_##template_postfix##__ = __has_entity_with_sig_##template_postfix##__<class_name>::value;                                                   \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
@@ -122,10 +142,11 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 		
 #define ASSERT_CALL_FUNCTION(function_name)                                                                                                                                     \
 	utf::call_if_class_defined<struct __HACK__>(holder, [&](utf::Holder<utf::any> *holder, auto* ptr_##function_name) constexpr -> void {                                       \
-		using __HACK__ = std::decay_t<decltype(*ptr_##function_name)>;                                                                                                          \
-
-#define BEGIN
-#define END });
+		using __HACK__ = std::decay_t<decltype(*ptr_##function_name)>;
+		
+#define CLASS(class_name)                                                                                                                                                       \
+	class class_name;                                                                                                                                                           \
+	static bool __class_##class_name##_exists__ = false
 	
 #define CHECK_CLASS_METHOD(method_name)                                                                                                                                         \
 	template<typename T, typename... Ts>                                                                                                                                        \
@@ -155,6 +176,19 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 		                                     Alias_method_##method_name<AmbiguitySeed_##method_name>>::value;                                                                   \
 	}
 	
+#define CHECK_CLASS_METHOD_SIGNATURE(method_name, signature, template_postfix)                                                                                                  \
+	template<typename T, typename = std::true_type>                                                                                                                             \
+	struct __has_method_with_sig_##template_postfix##__ : std::false_type {};                                                                                                   \
+	template<typename T, typename = std::true_type>                                                                                                                             \
+	struct __has_entity_with_sig_##template_postfix##__ : std::false_type {};                                                                                                   \
+		                                                                                                                                                                        \
+	template<typename T>                                                                                                                                                        \
+	struct __has_method_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                         \
+	                                       utf::sig_check<signature, &T::method_name>::value>> : std::true_type {};                                                             \
+	template<typename T>                                                                                                                                                        \
+	struct __has_entity_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                         \
+		                                   utf::sig_check<signature, &T::method_name>::value>> : std::true_type {}
+	
 #define CHECK_FUNCTION(function_name)                                                                                                                                           \
 	template<typename T, typename... Ts>                                                                                                                                        \
 	auto __check_function_##function_name##__(T* obj, Ts... args) -> decltype(obj->function_name(args...)) {                                                                    \
@@ -182,6 +216,14 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 		static const bool value = utf::has_member<Alias_function_##function_name<utf::ambiguate<T, AmbiguitySeed_##function_name>>,                                             \
 		                                     Alias_function_##function_name<AmbiguitySeed_##function_name>>::value;                                                             \
 	}
+	
+#define CHECK_FUNCTION_SIGNATURE(function_name, signature, template_postfix)                                                                                                    \
+	template<typename T, typename = std::true_type>                                                                                                                             \
+	struct __has_function_with_sig_##template_postfix##__ : std::false_type {};                                                                                                 \
+		                                                                                                                                                                        \
+	template<typename T>                                                                                                                                                        \
+	struct __has_function_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                       \
+	                                       utf::sig_check<signature, &T::function_name>::value>> : std::true_type {}
 	
 #define CHECK_CLASS_ATTRIBUTE(attribute_name)                                                                                                                                   \
 	template<class T>                                                                                                                                                           \
@@ -223,32 +265,48 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 	template<typename T>                                                                                                                                                        \
 	struct __has_entity_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                         \
 		                                   utf::sig_check<signature, &T::attribute_name>::value>> : std::true_type {}
-                                      
-#define CHECK_CLASS_METHOD_SIGNATURE(method_name, signature, template_postfix)                                                                                                  \
+		                                   
+#define CHECK_CLASS_OPERATOR(operator_name, operator_template)                                                                                                                  \
+	template<typename T, typename... Ts>                                                                                                                                        \
+	auto __check_operator_##operator_template##__(T* obj, Ts... args) -> decltype(obj->operator_name(args...)) {                                                                \
+		return obj->operator_name(args...);                                                                                                                                     \
+	}                                                                                                                                                                           \
+		                                                                                                                                                                        \
+	auto __check_operator_##operator_template##__(...) -> std::string {                                                                                                         \
+		return std::string("Method ") + std::string(#operator_template) + std::string(" is not defined!");                                                                      \
+	}                                                                                                                                                                           \
+	                                                                                                                                                                            \
 	template<typename T, typename = std::true_type>                                                                                                                             \
-	struct __has_method_with_sig_##template_postfix##__ : std::false_type {};                                                                                                   \
+	struct Alias_operator_##operator_template;                                                                                                                                  \
+	                                                                                                                                                                            \
+	template<typename T>                                                                                                                                                        \
+	struct Alias_operator_##operator_template<T, std::integral_constant<bool, utf::got_type<decltype(&T::operator_name)>::value>> {                                             \
+		static const decltype(&T::operator_name) value;                                                                                                                         \
+	};                                                                                                                                                                          \
+	                                                                                                                                                                            \
+	struct AmbiguitySeed_##operator_template {                                                                                                                                  \
+		char operator_template;                                                                                                                                                 \
+	};                                                                                                                                                                          \
+	                                                                                                                                                                            \
+	template<typename T>                                                                                                                                                        \
+	struct __has_operator_##operator_template##__ {                                                                                                                             \
+		static const bool value = utf::has_operator<Alias_operator_##operator_template<utf::ambiguate<T, AmbiguitySeed_##operator_template>>,                                   \
+		                                     Alias_operator_##operator_template<AmbiguitySeed_##operator_template>>::value;                                                     \
+	}
+	
+#define CHECK_CLASS_OPERATOR_SIGNATURE(operator_name, signature, template_postfix)                                                                                              \
+	template<typename T, typename = std::true_type>                                                                                                                             \
+	struct __has_operator_with_sig_##template_postfix##__ : std::false_type {};                                                                                                 \
 	template<typename T, typename = std::true_type>                                                                                                                             \
 	struct __has_entity_with_sig_##template_postfix##__ : std::false_type {};                                                                                                   \
 		                                                                                                                                                                        \
 	template<typename T>                                                                                                                                                        \
-	struct __has_method_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                         \
-	                                       utf::sig_check<signature, &T::method_name>::value>> : std::true_type {};                                                             \
+	struct __has_operator_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                       \
+	                                       utf::sig_check<signature, &T::operator_name>::value>> : std::true_type {};                                                           \
 	template<typename T>                                                                                                                                                        \
 	struct __has_entity_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                         \
-		                                   utf::sig_check<signature, &T::method_name>::value>> : std::true_type {}
-	                                       
-#define CHECK_FUNCTION_SIGNATURE(function_name, signature, template_postfix)                                                                                                    \
-	template<typename T, typename = std::true_type>                                                                                                                             \
-	struct __has_function_with_sig_##template_postfix##__ : std::false_type {};                                                                                                 \
-		                                                                                                                                                                        \
-	template<typename T>                                                                                                                                                        \
-	struct __has_function_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                       \
-	                                       utf::sig_check<signature, &T::function_name>::value>> : std::true_type {}
-	                                       
-#define CLASS(class_name)                                                                                                                                                       \
-	class class_name;                                                                                                                                                           \
-	static bool __class_##class_name##_exists__ = false
-
+		                                   utf::sig_check<signature, &T::operator_name>::value>> : std::true_type {}
+		                                   
 #define CHECK_CONTAINER(Container, Type)                                                                                                                                        \
 	auto __check_##Container##_of_##Type##__(std::Container<Type>* cont, uint64_t index) -> std::string {                                                                       \
 		std::Container<Type>::iterator it = cont->begin() + index;                                                                                                              \
@@ -258,6 +316,9 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 			return "Index of out bound!";                                                                                                                                       \
 		}                                                                                                                                                                       \
 	}
+		                                   
+#define BEGIN
+#define END });
 	                                       
 template<typename T>
 constexpr void RUN(const std::unordered_map<std::string, std::vector<utf::Test<T>>>& suites, std::unordered_map<std::string, std::pair<bool, std::vector<std::string>>>& requirements) {
