@@ -285,12 +285,12 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 	};                                                                                                                                                                          \
 	                                                                                                                                                                            \
 	struct AmbiguitySeed_##operator_template {                                                                                                                                  \
-		char operator_template;                                                                                                                                                 \
+		void operator_name() {}                                                                                                                                                 \
 	};                                                                                                                                                                          \
 	                                                                                                                                                                            \
 	template<typename T>                                                                                                                                                        \
 	struct __has_operator_##operator_template##__ {                                                                                                                             \
-		static const bool value = utf::has_operator<Alias_operator_##operator_template<utf::ambiguate<T, AmbiguitySeed_##operator_template>>,                                   \
+		static const bool value = utf::has_member<Alias_operator_##operator_template<utf::ambiguate<T, AmbiguitySeed_##operator_template>>,                                     \
 		                                     Alias_operator_##operator_template<AmbiguitySeed_##operator_template>>::value;                                                     \
 	}
 	

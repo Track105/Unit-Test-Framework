@@ -110,16 +110,6 @@ struct has_member {
     static bool const value = sizeof(f<Alias>(0)) == 2;
 };
 
-template<typename Alias, typename AmbiguitySeed>
-struct has_operator {
-    template<typename C> static char ((&f(decltype(&C::value))))[1];
-    template<typename C> static char ((&f(...)))[2];
-
-    static_assert((sizeof(f<AmbiguitySeed>(0)) == 2), "Check operator names, it should be identical!");
-
-    static bool const value = sizeof(f<Alias>(0)) == 1;
-};
-
 std::string to_string(std::string str) {
     return std::move(str);
 }
