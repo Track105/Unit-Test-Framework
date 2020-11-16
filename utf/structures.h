@@ -18,6 +18,7 @@
 #include <iomanip>
 
 #define RUN_ALL_TESTS() RUN(suites, TestCase::requirements)
+#define RUN_ONE_TEST(test_name) RUN_ONE(suites, test_name, TestCase::requirements)
 
 typedef int64_t s64;
 typedef uint64_t u64; 

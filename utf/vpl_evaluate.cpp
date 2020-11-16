@@ -330,6 +330,7 @@ Evaluation* Evaluation::singlenton = NULL;
 void recursiveFindRequirementsAndDependencies(const std::vector<TestCase> &testCases, const TestCase &testCase, 
 							   const std::unordered_map<std::string, std::pair<bool, std::vector<std::string>>> &requirements, bool &allRequirementsPassed,
 							   std::unordered_map<std::string, std::vector<std::string>> &errorMessages);
+void computeAndCheckRequirements(const TestCase& testCase, std::unordered_map<std::string, std::vector<std::string>>& errorMessages, bool& allRequirementsPassed);
 std::unordered_map<std::string, std::pair<bool, std::vector<std::string>>> TestCase::requirements = std::unordered_map<std::string, std::pair<bool, std::vector<std::string>>>{};
 
 
@@ -1579,48 +1580,29 @@ void Evaluation::runTests() {
 		bool singleDependsPassed = true;
 		bool allDependsPassed = true;
 		
-		int error_number = 1;
-		for (int j = 0; j < testCases[i].req.size(); j++) {
-		    std::vector<std::string> failedReqs;
-			bool requirementPassed = false;
-			std::string currentReq = testCases[i].req[j];
-			uint64_t orIndex = currentReq.find('|');
-			while (orIndex != std::string::npos) {
-				std::string parsedReq = currentReq.substr(0, orIndex);
-				trim(parsedReq);
-				requirementPassed |= TestCase::requirements[parsedReq].first;
-				if (!requirementPassed) {
-					failedReqs.push_back(parsedReq);
+		uint64_t error_number = 1;
+
+		if (testCases[i].depends.empty()) {
+			computeAndCheckRequirements(testCases[i], errorMessages, allRequirementsPassed);
+		} else {
+			for (const std::string &name_dependency : testCases[i].depends) {
+				const TestCase &dependency = *std::find_if(testCases.begin(), testCases.end(), [&](const TestCase &tc) {
+					return tc.getCaseDescription() == name_dependency;
+				});
+				recursiveFindRequirementsAndDependencies(testCases, dependency, TestCase::requirements, singleDependsPassed, errorMessages);
+				if (!singleDependsPassed) {
+					allDependsPassed = false;
+					std::string str_error_number = std::to_string(error_number++) + std::string(") ");
+					errorMessages[testCases[i].getCaseDescription()].push_back(str_error_number + std::string("Requirements for <") + name_dependency + std::string("> are not satisfied!\n"));
 				}
-				currentReq = currentReq.substr(orIndex + 1, currentReq.size());
-				orIndex = currentReq.find('|');
+				singleDependsPassed = true;
 			}
-			trim(currentReq);
-			requirementPassed |= TestCase::requirements[currentReq].first;
-			allRequirementsPassed &= requirementPassed;
-			if (!requirementPassed) {
-			    failedReqs.push_back(currentReq);
-			    for (std::string& failedReq : failedReqs) {
-    				for (int k = 0; k < TestCase::requirements[failedReq].second.size(); k++) {
-    					std::string str_error_number = std::to_string(error_number++) + std::string(") ");
-    					errorMessages[testCases[i].getCaseDescription()].push_back(str_error_number + TestCase::requirements[failedReq].second[k]);
-    				}
-			    }
-			}
-			
 		}
-		for (const std::string &name_dependency : testCases[i].depends) {
-			const TestCase &dependency = *std::find_if(testCases.begin(), testCases.end(), [&](const TestCase &tc) {
-				return tc.getCaseDescription() == name_dependency;
-			});
-			recursiveFindRequirementsAndDependencies(testCases, dependency, TestCase::requirements, singleDependsPassed, errorMessages);
-			if (!singleDependsPassed) {
-				allDependsPassed = false;
-				std::string str_error_number = std::to_string(error_number++) + std::string(") ");
-				errorMessages[testCases[i].getCaseDescription()].push_back(str_error_number + std::string("Requirements for <") + name_dependency + std::string("> are not satisfied!\n"));
-			}
-			singleDependsPassed = true;
+		
+		if (allDependsPassed) {
+			computeAndCheckRequirements(testCases[i], errorMessages, allRequirementsPassed);
 		}
+		
 		nruns++;
 		if (testCases[i].getOutputSize() > 0 && allRequirementsPassed && allDependsPassed) {
 			testCases[i].runTest(timeout);
@@ -1651,7 +1633,6 @@ void Evaluation::runTests() {
 				for (const std::string &errorMessage : errorMessages[testCases[i].getCaseDescription()]) {
 					strncat(comments[ncomments], errorMessage.c_str(),
 								MAXCOMMENTSLENGTH);
-					error_number++;
 				}
 				ncomments++;
 			}
@@ -1742,6 +1723,40 @@ void setSignalsCatcher() {
 	signal(SIGTERM, signalCatcher);
 }
 
+void computeAndCheckRequirements(const TestCase& testCase, std::unordered_map<std::string, std::vector<std::string>>& errorMessages, bool& allRequirementsPassed) {
+	uint64_t error_number = 1;
+	for (int j = 0; j < testCase.req.size(); j++) {
+		std::vector<std::string> failedReqs;
+		bool requirementPassed = false;
+		std::string currentReq = testCase.req[j];
+		int64_t orIndex = currentReq.find('|');
+		while (orIndex != std::string::npos) {
+			std::string parsedReq = currentReq.substr(0, orIndex);
+			Evaluation::trim(parsedReq);
+			RUN_ONE_TEST(parsedReq);
+			requirementPassed |= TestCase::requirements[parsedReq].first;
+			if (!requirementPassed) {
+				failedReqs.push_back(parsedReq);
+			}
+			currentReq = currentReq.substr(orIndex + 1, currentReq.size());
+			orIndex = currentReq.find('|');
+		}
+		Evaluation::trim(currentReq);
+		RUN_ONE_TEST(currentReq);
+		requirementPassed |= TestCase::requirements[currentReq].first;
+		allRequirementsPassed &= requirementPassed;
+		if (!requirementPassed) {
+			failedReqs.push_back(currentReq);
+			for (std::string& failedReq : failedReqs) {
+				for (int k = 0; k < TestCase::requirements[failedReq].second.size(); k++) {
+					std::string str_error_number = std::to_string(error_number++) + std::string(") ");
+					errorMessages[testCase.getCaseDescription()].push_back(str_error_number + TestCase::requirements[failedReq].second[k]);
+				}
+			}
+		}
+	}
+}
+
 void recursiveFindRequirementsAndDependencies(const std::vector<TestCase> &testCases, const TestCase &testCase,
 							   const std::unordered_map<std::string, std::pair<bool, std::vector<std::string>>> &requirements, bool &allRequirementsPassed,
 							   std::unordered_map<std::string, std::vector<std::string>> &errorMessages) {
@@ -1749,7 +1764,7 @@ void recursiveFindRequirementsAndDependencies(const std::vector<TestCase> &testC
 	for (int i = 0; i < testCase.req.size(); i++) {
 	    bool requirementPassed = false;
     	std::string currentReq = testCase.req[i];
-		uint64_t orIndex = currentReq.find('|');
+		int64_t orIndex = currentReq.find('|');
 		while (orIndex != std::string::npos) {
 			std::string parsedReq = currentReq.substr(0, orIndex);
 			Evaluation::trim(parsedReq);
@@ -1772,7 +1787,6 @@ void recursiveFindRequirementsAndDependencies(const std::vector<TestCase> &testC
 }
 
 int main(int argc, char *argv[], const char **env) {
-	RUN_ALL_TESTS();
 	Timer::start();
 	TestCase::setEnvironment(env);
 	setSignalsCatcher();
