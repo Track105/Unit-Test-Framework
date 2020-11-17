@@ -279,7 +279,14 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 	};                                                                                                                                                                          \
 	                                                                                                                                                                            \
 	struct AmbiguitySeed_##operator_template {                                                                                                                                  \
-		void operator_name() {}                                                                                                                                                 \
+		NO_ARG(+) NO_ARG(-) NO_ARG(*) NO_ARG(&) NO_ARG(~) NO_ARG(!) NO_ARG(++) NO_ARG(--) NO_ARG(()) NO_ARG(->)                                                                 \
+		ONE_ARG(/)  ONE_ARG(%)  ONE_ARG(^)  ONE_ARG(|) ONE_ARG(<)  ONE_ARG(>)  ONE_ARG(<=) ONE_ARG(>=) ONE_ARG(<<) ONE_ARG(>>) ONE_ARG(<<=) ONE_ARG(>>=)                        \
+		ONE_ARG(==) ONE_ARG(!=) ONE_ARG(&&) ONE_ARG(+=) ONE_ARG(-=) ONE_ARG(/=) ONE_ARG(%=) ONE_ARG(^=) ONE_ARG(&=) ONE_ARG(|=) ONE_ARG(*=) ONE_ARG([])  ONE_ARG(->*)           \
+		void operator,(size_t param) {}                                                                                                                                         \
+		void* operator new(size_t param) { int* r = new int; return r; }                                                                                                        \
+		void operator delete(void* param) {}                                                                                                                                    \
+		void* operator new[](size_t param) { int* r = new int; return r; }                                                                                                      \
+		void operator delete[](void* param) {}                                                                                                                                  \
 	};                                                                                                                                                                          \
 	                                                                                                                                                                            \
 	template<typename T>                                                                                                                                                        \
@@ -328,6 +335,10 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 		                                   
 #define BEGIN
 #define END });
+#define PARAM void*
+#define RETURN void
+#define NO_ARG(sign) RETURN operator sign() {}
+#define ONE_ARG(sign) RETURN operator sign(PARAM param) {}
 	                                       
 template<typename T>
 constexpr void RUN(const std::unordered_map<std::string, std::vector<utf::Test<T>>>& suites, std::unordered_map<std::string, std::pair<bool, std::vector<std::string>>>& requirements) {
