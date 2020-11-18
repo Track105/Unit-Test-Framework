@@ -1579,8 +1579,6 @@ void Evaluation::runTests() {
 		bool allRequirementsPassed = true;
 		bool singleDependsPassed = true;
 		bool allDependsPassed = true;
-		
-		uint64_t error_number = 1;
 
 		if (testCases[i].depends.empty()) {
 			computeAndCheckRequirements(testCases[i], errorMessages, allRequirementsPassed);
@@ -1592,8 +1590,7 @@ void Evaluation::runTests() {
 				recursiveFindRequirementsAndDependencies(testCases, dependency, TestCase::requirements, singleDependsPassed, errorMessages);
 				if (!singleDependsPassed) {
 					allDependsPassed = false;
-					std::string str_error_number = std::to_string(error_number++) + std::string(") ");
-					errorMessages[testCases[i].getCaseDescription()].push_back(str_error_number + std::string("Requirements for <") + name_dependency + std::string("> are not satisfied!\n"));
+					errorMessages[testCases[i].getCaseDescription()].push_back(std::string("Requirements for <") + name_dependency + std::string("> are not satisfied!\n"));
 				}
 				singleDependsPassed = true;
 			}
@@ -1629,6 +1626,11 @@ void Evaluation::runTests() {
 				if (!allRequirementsPassed || !allDependsPassed) {
 					strncat(comments[ncomments], "Check the program description. Your program doesn't meet this requirements:\n\n",
 									MAXCOMMENTSLENGTH);
+				}
+				uint64_t errorNumber = 1;
+				for (std::string &errorMessage : errorMessages[testCases[i].getCaseDescription()]) {
+					std::string strErrorNumber = std::to_string(errorNumber++) + ") ";
+					errorMessage = strErrorNumber + errorMessage;
 				}
 				for (const std::string &errorMessage : errorMessages[testCases[i].getCaseDescription()]) {
 					strncat(comments[ncomments], errorMessage.c_str(),
@@ -1724,7 +1726,6 @@ void setSignalsCatcher() {
 }
 
 void computeAndCheckRequirements(const TestCase& testCase, std::unordered_map<std::string, std::vector<std::string>>& errorMessages, bool& allRequirementsPassed) {
-	uint64_t error_number = 1;
 	for (int j = 0; j < testCase.req.size(); j++) {
 		std::vector<std::string> failedReqs;
 		bool requirementPassed = false;
@@ -1749,8 +1750,11 @@ void computeAndCheckRequirements(const TestCase& testCase, std::unordered_map<st
 			failedReqs.push_back(currentReq);
 			for (std::string& failedReq : failedReqs) {
 				for (int k = 0; k < TestCase::requirements[failedReq].second.size(); k++) {
-					std::string str_error_number = std::to_string(error_number++) + std::string(") ");
-					errorMessages[testCase.getCaseDescription()].push_back(str_error_number + TestCase::requirements[failedReq].second[k]);
+					std::vector<std::string>::iterator isErrorMessage = std::find(errorMessages[testCase.getCaseDescription()].begin(), 
+																				  errorMessages[testCase.getCaseDescription()].end(), TestCase::requirements[failedReq].second[k]);
+					if (isErrorMessage == errorMessages[testCase.getCaseDescription()].end()) { 
+						errorMessages[testCase.getCaseDescription()].push_back(TestCase::requirements[failedReq].second[k]);
+					}
 				}
 			}
 		}
