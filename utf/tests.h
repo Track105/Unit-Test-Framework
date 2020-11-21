@@ -24,6 +24,13 @@ CHECK_CLASS_METHOD_SIGNATURE(sum, int (T::*)(int, int), ri_sum_ii);
 CHECK_FUNCTION_SIGNATURE(multiply, int (T::*)(int, int), int_multiply_int_int);
 
 
+TEST(Segmentation, Fault) {
+
+	SEGMENTATION_FAULT_MESSAGE("Test", "Message");
+	
+}
+
+
 TEST(Function, Name_multiply) {
 	
     ASSERT_FUNCTION(multiply, "Function 'multiply' DOES NOT exist!");

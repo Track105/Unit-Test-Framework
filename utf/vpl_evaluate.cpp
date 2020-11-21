@@ -276,17 +276,17 @@ class Evaluation {
 	float grademin, grademax;
 	bool noGrade;
 	float grade;
-	int nerrors, nruns;
 	vector<TestCase> testCases;
-	char comments[MAXCOMMENTS + 1][MAXCOMMENTSLENGTH + 1];
-	char titles[MAXCOMMENTS + 1][MAXCOMMENTSTITLELENGTH + 1];
-	char titlesGR[MAXCOMMENTS + 1][MAXCOMMENTSTITLELENGTH + 1];
-	volatile int ncomments;
+	int nerrors, nruns;
 	volatile bool stopping;
 	static Evaluation *singlenton;
 	Evaluation();
 
 public:
+	char comments[MAXCOMMENTS + 1][MAXCOMMENTSLENGTH + 1];
+	char titles[MAXCOMMENTS + 1][MAXCOMMENTSTITLELENGTH + 1];
+	char titlesGR[MAXCOMMENTS + 1][MAXCOMMENTSTITLELENGTH + 1];
+	volatile int ncomments;
 	static Evaluation* getSinglenton();
 	static void deleteSinglenton();
 	void addTestCase(string &input, vector<string> &output, vector<string> &reqs, vector<string> &depends,
@@ -311,6 +311,7 @@ public:
 	void setNRuns(int nruns);
 	int getNRuns();
 	int getNErrors();
+	TestCase& getTestCase(int index);
 };
 
 
@@ -1355,6 +1356,10 @@ void Evaluation::setNErrors(int nerrors) {
 	this->nerrors = nerrors;
 }
 
+TestCase& Evaluation::getTestCase(int index) {
+	return testCases[index];
+}
+
 void Evaluation::loadTestCases(string fname) {
 	if(!Tools::existFile(fname)) return;
 	const char *CASE_TAG = "case=";
@@ -1588,6 +1593,7 @@ void Evaluation::addFatalError(const char *m) {
 }
 
 void Evaluation::runTests() {
+	RUN_ONE_TEST("Segmentation::Fault");
 	struct sigaction action;
 	memset(&action, 0, sizeof(struct sigaction));
 	action.sa_flags = SA_SIGINFO;
@@ -1740,6 +1746,38 @@ void Evaluation::outputEvaluation() {
 
 void handler(int nSignum, siginfo_t* si, void* vcontext) {
 	Evaluation* obj = Evaluation::getSinglenton();
+	for (int i = obj->getNRuns(); i < obj->getTestCasesSize(); i++) {
+		strncpy(obj->titles[obj->ncomments], obj->getTestCase(i).getCommentTitle().c_str(),
+				MAXCOMMENTSTITLELENGTH);
+		strncpy(obj->titlesGR[obj->ncomments], obj->getTestCase(i).getCommentTitle(true).c_str(),
+				MAXCOMMENTSTITLELENGTH);
+		strncpy(obj->comments[obj->ncomments], 
+				"Probably you have a SEGMENTATION FAULT! "
+				"This test will not run until you solve this error! "
+				"Please, check your code again!\n",
+	    		MAXCOMMENTSLENGTH);	
+	    strncat(obj->comments[obj->ncomments], "The error comes from <",
+	    		MAXCOMMENTSLENGTH);
+	    strncat(obj->comments[obj->ncomments], obj->getTestCase(obj->getNRuns()).getCaseDescription().c_str(),
+	    		MAXCOMMENTSLENGTH);	
+	    strncat(obj->comments[obj->ncomments], 
+				"> and what this test verifies is described below:\n\n1) ",
+	    		MAXCOMMENTSLENGTH);	
+	    for (int i = 0; i < segmentation_fault_case_index; i++) {
+	    	if (strcmp(segmentation_fault_case[i][0], obj->getTestCase(obj->getNRuns()).getCaseDescription().c_str()) == 0) {
+				strncat(obj->comments[obj->ncomments], segmentation_fault_case[i][1],
+						MAXCOMMENTSLENGTH);		
+				break;
+			}
+		}
+		if (segmentation_fault_case_index == 0) {
+			strncat(obj->comments[obj->ncomments], "This test doesn't have a default description. ASK LABORATORY PROFESSOR OR FRAMEWORK ADMINISTRATOR!",
+					MAXCOMMENTSLENGTH);	
+		}
+		strncat(obj->comments[obj->ncomments], "\n",
+	    		MAXCOMMENTSLENGTH);
+		obj->ncomments++;
+	}
 	float grademax = obj->getGradeMax();
 	int nruns = obj->getNRuns();
 	int nerrors = obj->getNErrors();
@@ -1748,9 +1786,6 @@ void handler(int nSignum, siginfo_t* si, void* vcontext) {
 	obj->setNRuns(testCasesSize);
 	obj->setGrade(grademax * (obj->getNRuns() - obj->getNErrors()) / obj->getTestCasesSize());
 	obj->outputEvaluation();
-	printf("\n<|--\n");
-	printf("Probably you have a SEGMENTATION FAULT!\nTests will not run until you solve this error!\nCheck your code again!\n");
-	printf("\n--|>\n");
   	ucontext_t* context = (ucontext_t*)vcontext;
   	context->uc_mcontext.gregs[REG_RIP]++;
   	abort();
@@ -1758,11 +1793,10 @@ void handler(int nSignum, siginfo_t* si, void* vcontext) {
 
 
 void nullSignalCatcher(int n) {
-	//printf("Signal %d\n",n);
+
 }
 
 void signalCatcher(int n) {
-	//printf("Signal %d\n",n);
 	if (Stop::isTERMRequested()) {
 		Evaluation* obj = Evaluation::getSinglenton();
 		obj->outputEvaluation();
@@ -1781,9 +1815,9 @@ void signalCatcher(int n) {
 }
 
 void setSignalsCatcher() {
-	//Remove as signal controllers as possible
-	for(int i=0;i<31; i++)
+	for(int i=0;i<31; i++) {
 		signal(i, nullSignalCatcher);
+	}
 	signal(SIGINT, signalCatcher);
 	signal(SIGQUIT, signalCatcher);
 	signal(SIGILL, signalCatcher);

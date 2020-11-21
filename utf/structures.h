@@ -16,6 +16,7 @@
 #include <unordered_map>
 #include <sstream>
 #include <iomanip>
+#include <cstring>
 
 #define RUN_ALL_TESTS() RUN(suites, TestCase::requirements)
 #define RUN_ONE_TEST(test_name) RUN_ONE(suites, test_name, TestCase::requirements)

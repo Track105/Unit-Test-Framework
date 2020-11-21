@@ -10,6 +10,8 @@
 #include "structures.h"
 
 static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
+static int segmentation_fault_case_index = 0;                                                                                                                                           
+static char segmentation_fault_case[64][2][1024];
 
 #define TEST(suite_name, test_name)                                                                                                                                             \
     template<typename T>                                                                                                                                                        \
@@ -332,6 +334,11 @@ static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
 			return "Container type is incorrect!";                                                                                                                              \
 		}                                                                                                                                                                       \
 	}
+	
+#define SEGMENTATION_FAULT_MESSAGE(test_case, message)                                                                                                                          \
+	strcpy(segmentation_fault_case[segmentation_fault_case_index][0], test_case);                                                                                               \
+	strcpy(segmentation_fault_case[segmentation_fault_case_index][1], message);                                                                                                 \
+	segmentation_fault_case_index++;
 		                                   
 #define BEGIN
 #define END });
