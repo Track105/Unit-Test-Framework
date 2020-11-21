@@ -302,6 +302,15 @@ public:
 	void addFatalError(const char *m);
 	void runTests();
 	void outputEvaluation();
+	void setGrade(float grade);
+	float getGradeMin();
+	float getGradeMax();
+	float getGrade();
+	unsigned long int getTestCasesSize();
+	void setNErrors(int nerrors);
+	void setNRuns(int nruns);
+	int getNRuns();
+	int getNErrors();
 };
 
 
@@ -332,8 +341,7 @@ void recursiveFindRequirementsAndDependencies(const std::vector<TestCase> &testC
 							   std::unordered_map<std::string, std::vector<std::string>> &errorMessages);
 void computeAndCheckRequirements(const TestCase& testCase, std::unordered_map<std::string, std::vector<std::string>>& errorMessages, bool& allRequirementsPassed);
 std::unordered_map<std::string, std::pair<bool, std::vector<std::string>>> TestCase::requirements = std::unordered_map<std::string, std::pair<bool, std::vector<std::string>>>{};
-
-
+void handler(int nSignum, siginfo_t* si, void* vcontext);
 
 /**
  * Class Tools Definitions
@@ -1310,6 +1318,43 @@ bool Evaluation::cutToEndTag(string &value, const string &endTag) {
 	return false;
 }
 
+void Evaluation::setGrade(float grade) {
+	this->grade = grade;
+}
+
+float Evaluation::getGrade() {
+	return grade;
+}
+
+float Evaluation::getGradeMax() {
+	return grademax;
+}
+
+
+float Evaluation::getGradeMin() {
+	return grademin;
+}
+
+int Evaluation::getNRuns() {
+	return nruns;
+}
+
+int Evaluation::getNErrors() {
+	return nerrors;
+}
+
+unsigned long int Evaluation::getTestCasesSize() {
+	return testCases.size();
+}
+
+void Evaluation::setNRuns(int nruns) {
+	this->nruns = nruns;
+}
+
+void Evaluation::setNErrors(int nerrors) {
+	this->nerrors = nerrors;
+}
+
 void Evaluation::loadTestCases(string fname) {
 	if(!Tools::existFile(fname)) return;
 	const char *CASE_TAG = "case=";
@@ -1543,6 +1588,11 @@ void Evaluation::addFatalError(const char *m) {
 }
 
 void Evaluation::runTests() {
+	struct sigaction action;
+	memset(&action, 0, sizeof(struct sigaction));
+	action.sa_flags = SA_SIGINFO;
+	action.sa_sigaction = handler;
+	sigaction(SIGSEGV, &action, NULL);
 	std::unordered_map<std::string, std::vector<std::string>> errorMessages;
 	if (testCases.size() == 0) {
 		return;
@@ -1687,6 +1737,25 @@ void Evaluation::outputEvaluation() {
 	}
 	fflush(stdout);
 }
+
+void handler(int nSignum, siginfo_t* si, void* vcontext) {
+	Evaluation* obj = Evaluation::getSinglenton();
+	float grademax = obj->getGradeMax();
+	int nruns = obj->getNRuns();
+	int nerrors = obj->getNErrors();
+	unsigned long int testCasesSize = obj->getTestCasesSize();
+	obj->setNErrors(nerrors + testCasesSize - nruns);
+	obj->setNRuns(testCasesSize);
+	obj->setGrade(grademax * (obj->getNRuns() - obj->getNErrors()) / obj->getTestCasesSize());
+	obj->outputEvaluation();
+	printf("\n<|--\n");
+	printf("Probably you have a SEGMENTATION FAULT!\nTests will not run until you solve this error!\nCheck your code again!\n");
+	printf("\n--|>\n");
+  	ucontext_t* context = (ucontext_t*)vcontext;
+  	context->uc_mcontext.gregs[REG_RIP]++;
+  	abort();
+}
+
 
 void nullSignalCatcher(int n) {
 	//printf("Signal %d\n",n);
