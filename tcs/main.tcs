@@ -16,10 +16,14 @@ public:
     virtual void calculateDistance() = 0;
     virtual Point* multiply(Point* other) = 0;
     double getDistance() { return mDistance; }
+    
+    ~Point() {}
 };
 
 class Point2D : public Point {
 public:
+	Point2D operator+(const Point2D& other) { return Point2D(); }
+	Point2D operator+(int param) { return Point2D(); }
     Point2D(double x1, double x2) { mCoordinates.push_back(x1); mCoordinates.push_back(x2); }
     Point2D() { mCoordinates.push_back(0); mCoordinates.push_back(0); mDistance = 0; }
     void print() {
@@ -51,6 +55,8 @@ public:
 
 class Point3D : public Point {
 public:
+	Point3D operator+(const Point3D& other) { return Point3D(); }
+	float operator!() { return 4.35f; }
     Point3D(double x1, double x2, double x3) { mCoordinates.push_back(x1); mCoordinates.push_back(x2); mCoordinates.push_back(x3); }
     Point3D() { mCoordinates.push_back(0); mCoordinates.push_back(0); mCoordinates.push_back(0); mDistance = 0; }
     void print() {
@@ -87,6 +93,8 @@ public:
 
 class Point4D : public Point {
 public:
+	Point4D operator+(const Point4D& other) { return Point4D(); }
+	Point4D operator^(const Point4D& other) { return Point4D(); }
     Point4D(double x1, double x2, double x3, double x4) { mCoordinates.push_back(x1); mCoordinates.push_back(x2); mCoordinates.push_back(x3); mCoordinates.push_back(x4); }
     Point4D() { mCoordinates.push_back(0); mCoordinates.push_back(0); mCoordinates.push_back(0); mCoordinates.push_back(0); mDistance = 0; }
     void print() {
@@ -125,6 +133,14 @@ public:
         return point4D;
     }
 };
+
+const std::vector<int> createVec(size_t size, float param) {
+	return std::vector<int>();
+}
+
+const std::vector<int> createVec(size_t size, float param, int* pparam) {
+	return std::vector<int>();
+}
 
 int main() {
     double a, b, c, d;

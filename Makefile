@@ -1,9 +1,7 @@
 .PHONY: run
 run:
-	mv tcs/main.cpp tcs/main.cpp.temp;                  \
 	cp utf/* .;                                         \
-	./vpl_evaluate.sh;                                  \
-	mv tcs/main.cpp.temp tcs/main.cpp
+	./vpl_evaluate.sh
 
 .PHONY: mrproper
 mrproper:
@@ -28,9 +26,11 @@ test:
 		if [ ! dpkg -s doxygen >/dev/null 2>&1 ]; then  \
 			sudo apt-get install doxygen;               \
 		fi;                                             \
+		mv main.tcs main.cpp;                           \
 		doxygen config.doxy;                            \
 		python3 parser.py;                              \
 		python3 test_creator.py;                        \
+		mv main.cpp main.tcs;                           \
 		echo "Test file 'tcs/tests.h' was created!";    \
 	elif [ $$mode = "manually" ]; then                  \
 		cd gui;                                         \
