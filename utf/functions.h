@@ -10,7 +10,7 @@
 #include "structures.h"
 
 static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
-static int segmentation_fault_case_index = 0;                                                                                                                                           
+static int segmentation_fault_case_index = 0;                           
 static char segmentation_fault_case[64][2][1024];
 
 #define TEST(suite_name, test_name)                                                                                                                                             \
@@ -282,7 +282,7 @@ static char segmentation_fault_case[64][2][1024];
 	                                                                                                                                                                            \
 	struct AmbiguitySeed_##operator_template {                                                                                                                                  \
 		NO_ARG(+) NO_ARG(-) NO_ARG(*) NO_ARG(&) NO_ARG(~) NO_ARG(!) NO_ARG(++) NO_ARG(--) NO_ARG(()) NO_ARG(->)                                                                 \
-		ONE_ARG(/)  ONE_ARG(%)  ONE_ARG(^)  ONE_ARG(|) ONE_ARG(<)  ONE_ARG(>)  ONE_ARG(<=) ONE_ARG(>=) ONE_ARG(<<) ONE_ARG(>>) ONE_ARG(<<=) ONE_ARG(>>=)                        \
+		ONE_ARG(/)  ONE_ARG(%)  ONE_ARG(^)  ONE_ARG(|) ONE_ARG(<)  ONE_ARG(>)  ONE_ARG(<=) ONE_ARG(>=) ONE_ARG(<<) ONE_ARG(>>) ONE_ARG(<<=) ONE_ARG(>>=) ONE_ARG(||)            \
 		ONE_ARG(==) ONE_ARG(!=) ONE_ARG(&&) ONE_ARG(+=) ONE_ARG(-=) ONE_ARG(/=) ONE_ARG(%=) ONE_ARG(^=) ONE_ARG(&=) ONE_ARG(|=) ONE_ARG(*=) ONE_ARG([])  ONE_ARG(->*)           \
 		void operator,(size_t param) {}                                                                                                                                         \
 		void* operator new(size_t param) { int* r = new int; return r; }                                                                                                        \
