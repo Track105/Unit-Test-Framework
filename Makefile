@@ -28,16 +28,14 @@ test:
 		if [ ! dpkg -s doxygen >/dev/null 2>&1 ]; then  \
 			sudo apt-get install doxygen;               \
 		fi;                                             \
-		mv main.cpp.test main.cpp;                      \
 		doxygen config.doxy;                            \
 		python3 parser.py;                              \
 		python3 test_creator.py;                        \
-		mv main.cpp main.cpp.test;                      \
-		echo "Test file 'tests.h' was created!";        \
+		echo "Test file 'tcs/tests.h' was created!";    \
 	elif [ $$mode = "manually" ]; then                  \
 		cd gui;                                         \
 		./createTests.sh;                               \
-		echo "Test file 'tests.h' was created!";        \
+		echo "Test file 'gui/tests.h' was created!";    \
 	else                                                \
 		echo "Invalid command! Stop!";                  \
 	fi
