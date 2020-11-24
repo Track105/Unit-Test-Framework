@@ -908,7 +908,7 @@ function create_test {
 					echo "}" >> create_test_tmp.txt
 					echo '' >> create_test_tmp.txt
 					cat create_test_tmp.txt >> tests.h
-					rm create_test_tmp.txt
+					rm create_test_tmp.txt 2> /dev/null
 					COMMAND="utf"
 					break
 				else
@@ -917,7 +917,7 @@ function create_test {
 				;;
 			*)
 				if (whiptail --title "Close" --yesno "Your changes will be lost. Do you want to return to main menu?" 8 78); then
-					rm create_test_tmp.txt
+					rm create_test_tmp.txt 2> /dev/null
 					break
 				fi
 				;;
@@ -952,7 +952,7 @@ while true; do
 					create_test
 					;;
 				*)
-					rm create_test_tmp.txt
+					rm create_test_tmp.txt 2> /dev/null
 					break
 					;;
 			esac				
