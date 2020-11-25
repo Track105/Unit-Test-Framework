@@ -130,6 +130,7 @@ def check_functions(out_file, entities):
 	unique_functions = set()
 	signatures = set()
 	functions = entities["FUNCTION"]
+	classes = entities["CLASS"]
 	for i in range(len(functions)):
 		unique_functions.add(functions[i].entity_name)
 		signatures.add(functions[i])
@@ -140,6 +141,9 @@ def check_functions(out_file, entities):
 		out_file.write("CHECK_FUNCTION(%s);\n" % (unique_functions[i]))
 	out_file.write("\n")
 	for i in range(len(signatures)):
+		for j in range(len(classes)):
+			signatures[i].return_type = signatures[i].return_type.replace(classes[j].class_name, "__HACK__::" + classes[j].class_name)
+			signatures[i].args = signatures[i].args.replace(classes[j].class_name, "__HACK__::" + classes[j].class_name)
 		out_file.write("CHECK_FUNCTION_SIGNATURE(%s, %s (T::*)(%s), %s);\n" % (signatures[i].entity_name, signatures[i].return_type, signatures[i].args, signatures[i].template_postfix))
 	out_file.write("\n")
 	return entities

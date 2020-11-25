@@ -9,6 +9,7 @@ CLASS_EXTRACT = '//compounddef[@kind="class"]'
 DEFINITION_EXTRACT = './/definition/text()'
 ARGS_EXTRACT = './/argsstring/text()'
 TYPE_EXTRACT = './/type/text()'
+TYPE_REF_EXTRACT = './/type/ref/text()'
 COMPOUND_EXTRACT = './/compoundname/text()'
 DERIVED_COMPOUND_EXTRACT = './/derivedcompoundref/text()'
 DESTRUCTOR = "DESTRUCTOR:-:     CLASS=%s | ARGS=%s\n"
@@ -73,7 +74,11 @@ for xml_file in glob.glob(PATH_TO_FILES):
         definition_arr = x.xpath(DEFINITION_EXTRACT)
         definition = definition_arr[0]
         attribute_type_arr = x.xpath(TYPE_EXTRACT)
-        attribute_type = attribute_type_arr[0]
+        attribute_type_ref_arr = x.xpath(TYPE_REF_EXTRACT)
+        if (len(attribute_type_arr) != 0):
+        	attribute_type = attribute_type_arr[0]
+        else:
+        	attribute_type = attribute_type_ref_arr[0]
         attribute_definition_arr = definition.split(" ")
         attribute_name_and_class_name = attribute_definition_arr[-1]
         attribute_name_and_class_name_arr = attribute_name_and_class_name.split("::")
