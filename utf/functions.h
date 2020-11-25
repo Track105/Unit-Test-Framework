@@ -384,6 +384,10 @@ constexpr void RUN_ONE(std::unordered_map<std::string, std::vector<utf::Test<T>>
 	const std::string& suite_name = full_name.substr(0, colon_index);
 	const std::string& test_name = full_name.substr(colon_index + 2, full_name.size());
 	
+	if (suite_name == std::string("Segmentation") && suites.count(suite_name) == 0) {
+		return;
+	}
+	
 	if (colon_index == std::string::npos || suites.count(suite_name) == 0) {
 		printf("Error while creating tests. Your test cases file contains at least one requirement that don't respect the convention name SUITE::TEST!\nABORT!\n");
 		return;
