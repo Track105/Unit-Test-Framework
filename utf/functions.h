@@ -58,6 +58,18 @@ static char segmentation_fault_case[64][2][1024];
 								   std::is_constructible<class_name, ##__VA_ARGS__>::value == 1 });                                                                             \
 	if constexpr (std::is_constructible<class_name, ##__VA_ARGS__>::value)
 	
+#define ASSERT_CLASS_COPY_CONSTRUCTOR(message, class_name)                                                                                                                      \
+	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
+	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
+								   !std::is_trivially_copy_constructible<class_name>::value == 1 });                                                                            \
+	if constexpr (!std::is_trivially_copy_constructible<class_name>::value)
+	
+#define ASSERT_CLASS_MOVE_CONSTRUCTOR(message, class_name)                                                                                                                      \
+	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
+	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
+								   !std::is_trivially_move_constructible<class_name>::value == 1 });                                                                            \
+	if constexpr (!std::is_trivially_move_constructible<class_name>::value)
+	
 #define ASSERT_CLASS_DESTRUCTOR(message, class_name)                                                                                                                            \
 	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
