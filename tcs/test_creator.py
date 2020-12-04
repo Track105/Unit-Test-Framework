@@ -163,7 +163,10 @@ def check_methods(out_file, entities):
 		out_file.write("CHECK_CLASS_METHOD(%s);\n" % (unique_methods[i]))
 	out_file.write("\n")
 	for i in range(len(signatures)):
-		out_file.write("CHECK_CLASS_METHOD_SIGNATURE(%s, %s (T::*)(%s), %s);\n" % (signatures[i].entity_name, signatures[i].return_type, signatures[i].args, signatures[i].template_postfix))
+		if (signatures[i].args[-5:] == "const"):
+			out_file.write("CHECK_CLASS_METHOD_SIGNATURE(%s, %s (T::*)(%s) const, %s);\n" % (signatures[i].entity_name, signatures[i].return_type, signatures[i].args, signatures[i].template_postfix))
+		else:
+			out_file.write("CHECK_CLASS_METHOD_SIGNATURE(%s, %s (T::*)(%s), %s);\n" % (signatures[i].entity_name, signatures[i].return_type, signatures[i].args, signatures[i].template_postfix))
 	out_file.write("\n")
 	return entities
 	
@@ -182,7 +185,10 @@ def check_operators(out_file, entities):
 		out_file.write("CHECK_CLASS_OPERATOR(%s, %s);\n" % (unique_operators[i], operator_template_postfix))
 	out_file.write("\n")
 	for i in range(len(signatures)):
-		out_file.write("CHECK_CLASS_OPERATOR_SIGNATURE(%s, %s (T::*)(%s), %s);\n" % (signatures[i].entity_name, signatures[i].return_type, signatures[i].args, signatures[i].template_postfix))
+		if (signatures[i].args[-5:] == "const"):
+			out_file.write("CHECK_CLASS_OPERATOR_SIGNATURE(%s, %s (T::*)(%s) const, %s);\n" % (signatures[i].entity_name, signatures[i].return_type, signatures[i].args, signatures[i].template_postfix))
+		else:
+			out_file.write("CHECK_CLASS_OPERATOR_SIGNATURE(%s, %s (T::*)(%s), %s);\n" % (signatures[i].entity_name, signatures[i].return_type, signatures[i].args, signatures[i].template_postfix))
 	out_file.write("\n")
 	return entities
 
@@ -239,11 +245,16 @@ for line in lines:
 
 	split_line = line.split(":-:")
 	test = split_line[0].strip()
+	split_line[1] = split_line[1].replace("operator==", "operatorEqualEqualTemp")
+	split_line[1] = split_line[1].replace("operator=", "operatorEqualTemp")
 	components = dict(map(lambda string: tuple(string.split("=")), list(map(lambda string: string.strip(), split_line[1].strip().split("|")))))
 	class_name = components.get("CLASS")
 	derived_class = components.get("DERIVED")
 	attr_type = components.get("TYPE")
 	entity_name = components.get("NAME")
+	if (entity_name != None):
+		entity_name = entity_name.replace("operatorEqualEqualTemp", "operator==")
+		entity_name = entity_name.replace("operatorEqualTemp", "operator=")
 	args = components.get("ARGS")
 	args = "" if (args == None or args == "None") else args
 	return_type = components.get("RETURN")

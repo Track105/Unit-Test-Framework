@@ -33,6 +33,17 @@ for xml_file in glob.glob(PATH_TO_FILES):
     for x in xml.xpath(FUNCTION_EXTRACT):
         args_arr = x.xpath(ARGS_EXTRACT)
         args = args_arr[0]
+        is_const_qualified = 0
+        has_const_override = args[args.find(")") + 1:].strip()
+        if (len(has_const_override) != 0):
+        	if (has_const_override) == "const":
+        		args = args[:-5].strip()
+        		is_const_qualified = 1
+        	elif (has_const_override == "override"):
+        		args = args[:-8].strip()
+        	elif (has_const_override == "const override"):
+        		args = args[:-14].strip()
+        		is_const_qualified = 1
         if (args[0] == "(") and (args[len(args)-1] == ")"):
         	args = args[1:len(args)-1]
         if (len(args) == 0):
@@ -60,14 +71,16 @@ for xml_file in glob.glob(PATH_TO_FILES):
             else:
                 class_name = class_name_and_entity_name_arr[0]
                 entity_name = class_name_and_entity_name_arr[1]
+                if (args[-1] == "0"):
+                    args = args[1:len(args)-3]
+                    out_file.write(ABSTRACT % (class_name))
+                    if (len(args) == 0):
+                        args = "None"
+                if (is_const_qualified == 1):
+                	args = args + "const"
                 if not (entity_name.isidentifier()):
                     out_file.write(OPERATOR % (entity_name, return_type, args, class_name))
                 else:
-                    if (args[-1] == "0"):
-                        args = args[1:len(args)-3]
-                        out_file.write(ABSTRACT % (class_name))
-                        if (len(args) == 0):
-                            args = "None"
                     out_file.write(METHOD % (entity_name, return_type, args, class_name))
                         
     for x in xml.xpath(VARIABLE_EXTRACT):
