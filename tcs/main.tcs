@@ -5,7 +5,8 @@
 #include <iostream>
 #include <cstdint>
 
-struct Person {
+class Person {
+public:
     std::string mName;
     uint8_t mAge;
     double mSalary;
