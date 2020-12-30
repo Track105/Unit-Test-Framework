@@ -12,7 +12,7 @@ mrproper:
 	rm -f *.cpp.save
 	rm -f .vpl_tester
 	rm -f *.sh
-	rm -f gui/tests.h
+	rm -f tui/tests.h
 	rm -f tcs/extract.conf
 	rm -f tcs/tests.h
 	rm -rf tcs/xml
@@ -33,9 +33,9 @@ test:
 		mv main.cpp main.tcs;                           \
 		echo "Test file 'tcs/tests.h' was created!";    \
 	elif [ $$mode = "manually" ]; then                  \
-		cd gui;                                         \
-		./createTests.sh;                               \
-		echo "Test file 'gui/tests.h' was created!";    \
+		cd tui;                                         \
+		./start_tui.sh;                                 \
+		echo "Test file 'tui/tests.h' was created!";    \
 	else                                                \
 		echo "Invalid command! Stop!";                  \
 	fi
