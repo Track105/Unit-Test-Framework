@@ -100,8 +100,16 @@ function get_radiolist_name() {
 	local -n NAMES=$2
 	TITLE=$3
 	RADIOLIST=$4
-	whiptail --title "$TITLE" --radiolist "$RADIOLIST" 20 78 13 $NAMES 3>&1 1>&2 2>out.txt
-	NAME=$(cat out.txt && rm out.txt)
+	MBOX=$5
+	while true; do
+		whiptail --title "$TITLE" --radiolist "$RADIOLIST" 20 78 13 $NAMES 3>&1 1>&2 2>out.txt
+		NAME=$(cat out.txt && rm out.txt)
+		if [[ -z $NAME ]]; then
+			whiptail --title "$TITLE" --msgbox "$MBOX" 8 78
+			continue
+		fi
+		break
+	done
 }
 
 function get_entity() {

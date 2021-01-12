@@ -42,7 +42,7 @@ function add_operator {
 			fi
 			
 			create_checklist_args whiplist_args operators "operator"
-			get_radiolist_name OPERATOR_NAME whiplist_args "Register operator signature" "Select operator"
+			get_radiolist_name OPERATOR_NAME whiplist_args "Register operator signature" "Select operator" "No operator selected! Please select an operator."
 			get_entity RETURN_TYPE "Register operator signature" "Enter the return type of operator $OPERATOR_NAME" "Invalid type! Enter a valid return type." "type"
 			get_template_postfix TEMPLATE_POSTFIX "Register operator signature" "operator $OPERATOR_NAME"
 			get_integer NR_INPUT_PARAMETERS "Register operator signature" "How many parameters operator $OPERATOR_NAME has?" "Invalid value! Enter a positive integer."

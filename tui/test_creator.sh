@@ -18,7 +18,7 @@ function test_creator {
 	
 	get_entity SUITE_NAME "Register suite" "Enter the suite name" "Invalid name! Enter a valid suite name." "suite"
 	get_entity TEST_NAME "Register test" "Enter the test name" "Invalid name! Enter a valid test name." "test"
-	echo -e "TEST("$SUITE_NAME", "$TEST_NAME") {\n" > create_test_tmp.txt
+	echo -e "TEST("$SUITE_NAME", "$TEST_NAME") {\n" > current_test.txt
 	
 	while true; do
 		whiptail --title "Create Test" --menu "Choose an option" --cancel-button "Exit" 25 97 16 \
@@ -45,10 +45,10 @@ function test_creator {
 				fi
 				
 				create_checklist_args whiplist_args functions "function"
-				get_radiolist_name FUNCTION_NAME whiplist_args "Assert function" "Select function"
+				get_radiolist_name FUNCTION_NAME whiplist_args "Assert function" "Select function" "No function selected! Please select a function."
 				get_message MESSAGE "Assert function"
 				
-				echo -e "    ASSERT_FUNCTION("$FUNCTION_NAME", "'"'$MESSAGE'"'");\n" >> create_test_tmp.txt
+				echo -e "    ASSERT_FUNCTION("$FUNCTION_NAME", "'"'$MESSAGE'"'");\n" >> current_test.txt
 				whiptail --title "Create Test" --msgbox "Assert for function "$FUNCTION_NAME" was added successfully!" 8 78
 				;;
 			"Assert function signature")
@@ -58,7 +58,7 @@ function test_creator {
 				fi
 				
 				create_checklist_args whiplist_args functions "function"
-				get_radiolist_name FUNCTION_NAME whiplist_args "Assert function signature" "Select function"
+				get_radiolist_name FUNCTION_NAME whiplist_args "Assert function signature" "Select function" "No function selected! Please select a function."
 				split_string functions_sigs[$FUNCTION_NAME] current_function_sigs " "
 
 				if [ "${#current_function_sigs[@]}" -eq 0 ]; then
@@ -70,7 +70,7 @@ function test_creator {
 				get_radiolist_signature SIGNATURE_NAME whiplist_args "Assert function signature" "Select function signature. Do you remember them? :)"
 				get_message MESSAGE "Assert function"
 
-				echo "    ASSERT_FUNCTION_SIGNATURE("$FUNCTION_NAME", "$SIGNATURE_NAME", "'"'$MESSAGE'"'") BEGIN {\n" >> create_test_tmp.txt
+				echo "    ASSERT_FUNCTION_SIGNATURE("$FUNCTION_NAME", "$SIGNATURE_NAME", "'"'$MESSAGE'"'") BEGIN {\n" >> current_test.txt
 				whiptail --title "Create Test" --msgbox "Assert signature for function "$FUNCTION_NAME" was added successfully!" 8 78			
 				while true; do
 					if (whiptail --title "Assert function value" --yesno "Do you want to check return value of function "$FUNCTION_NAME" ?" 8 78); then
@@ -80,15 +80,15 @@ function test_creator {
 						get_entity RETURN_VALUE "Assert function value" "Enter the return value of function $FUNCTION_NAME" "No value provide! You need to provide a return value." "value"
 						get_message MESSAGE "Assert function value"
 						
-						echo "        ASSERT_EQUAL("$FUNCTION_NAME"("$ALL_PARAMETERS"), "$RETURN_VALUE', "'$MESSAGE'"'");" >> create_test_tmp.txt
+						echo "        ASSERT_EQUAL("$FUNCTION_NAME"("$ALL_PARAMETERS"), "$RETURN_VALUE', "'$MESSAGE'"'");" >> current_test.txt
 						whiptail --title "Assert function value" --msgbox "Assert return value for function "$FUNCTION_NAME" was added successfully!" 8 78
 					else
 						break
 					fi
 				done
-				echo "" >> create_test_tmp.txt
-				echo "    } END" >> create_test_tmp.txt
-				echo "" >> create_test_tmp.txt
+				echo "" >> current_test.txt
+				echo "    } END" >> current_test.txt
+				echo "" >> current_test.txt
 				;;
 			"Assert class")
 				if [ "${#classes[@]}" -eq 0 ]; then
@@ -97,10 +97,10 @@ function test_creator {
 				fi
 				
 				create_checklist_args whiplist_args classes "class"
-				get_radiolist_name CLASS_NAME whiplist_args "Assert class" "Select class"
+				get_radiolist_name CLASS_NAME whiplist_args "Assert class" "Select class" "No class selected! Please select a class."
 				get_message MESSAGE "Assert class"
 				
-				echo "    ASSERT_CLASS("$CLASS_NAME", "'"'$MESSAGE'"'");" >> create_test_tmp.txt
+				echo "    ASSERT_CLASS("$CLASS_NAME", "'"'$MESSAGE'"'");" >> current_test.txt
 				whiptail --title "Create Test" --msgbox "Assert for class "$CLASS_NAME" was added successfully!" 8 78
 				;;
 			"Assert class attribute")
@@ -110,7 +110,7 @@ function test_creator {
 				fi
 				
 				create_checklist_args whiplist_args classes "class"
-				get_radiolist_name CLASS_NAME whiplist_args "Assert class attribute" "Select class"
+				get_radiolist_name CLASS_NAME whiplist_args "Assert class attribute" "Select class" "No class selected! Please select a class."
 				split_string attributes_class[$CLASS_NAME] current_attributes " "
 				
 				if [ "${#current_attributes[@]}" -eq 0 ]; then
@@ -119,10 +119,10 @@ function test_creator {
 				fi
 				
 				create_checklist_args whiplist_args current_attributes "attribute"
-				get_radiolist_name ATTRIBUTE_NAME whiplist_args "Assert class attribute" "Select attribute"
+				get_radiolist_name ATTRIBUTE_NAME whiplist_args "Assert class attribute" "Select attribute" "No attribute selected! Please select an attribute."
 				get_message MESSAGE "Assert class attribute"
 
-				echo "    ASSERT_CLASS_ATTRIBUTE("$CLASS_NAME", "$ATTRIBUTE_NAME", "'"'$MESSAGE'"'");" >> create_test_tmp.txt
+				echo "    ASSERT_CLASS_ATTRIBUTE("$CLASS_NAME", "$ATTRIBUTE_NAME", "'"'$MESSAGE'"'");" >> current_test.txt
 				whiptail --title "Create Test" --msgbox "Assert for class "$CLASS_NAME" for attribute "$ATTRIBUTE_NAME" was added successfully!" 8 78
 				;;
 			"Assert class attribute signature")
@@ -132,7 +132,7 @@ function test_creator {
 				fi
 				
 				create_checklist_args whiplist_args classes "class"
-				get_radiolist_name CLASS_NAME whiplist_args "Assert class attribute signature" "Select class"
+				get_radiolist_name CLASS_NAME whiplist_args "Assert class attribute signature" "Select class" "No class selected! Please select a class."
 				split_string attributes_class[$CLASS_NAME] current_attributes " "
 				
 				if [ "${#current_attributes[@]}" -eq 0 ]; then
@@ -141,7 +141,7 @@ function test_creator {
 				fi
 				
 				create_checklist_args whiplist_args current_attributes "attribute"
-				get_radiolist_name ATTRIBUTE_NAME whiplist_args "Assert class attribute signature" "Select attribute"
+				get_radiolist_name ATTRIBUTE_NAME whiplist_args "Assert class attribute signature" "Select attribute" "No attribute selected! Please select an attribute."
 				split_string attributes_sigs[$ATTRIBUTE_NAME] current_attribute_sigs " "
 				
 				if [ "${#current_attribute_sigs[@]}" -eq 0 ]; then
@@ -153,7 +153,7 @@ function test_creator {
 				get_radiolist_signature SIGNATURE_NAME whiplist_args "Assert class attribute signature" "Select attribute signature. Do you remember them? :)"
 				get_message MESSAGE "Assert class attribute signature"
 				
-				echo "    ASSERT_CLASS_ATTRIBUTE_SIGNATURE("$CLASS_NAME", "$ATTRIBUTE_NAME", "$SIGNATURE_NAME", "'"'$MESSAGE'"'");" >> create_test_tmp.txt
+				echo "    ASSERT_CLASS_ATTRIBUTE_SIGNATURE("$CLASS_NAME", "$ATTRIBUTE_NAME", "$SIGNATURE_NAME", "'"'$MESSAGE'"'");" >> current_test.txt
 				whiptail --title "Create Test" --msgbox "Assert signature for attribute "$ATTRIBUTE_NAME" in class "$CLASS_NAME" was added successfully!" 8 78
 				;;
 			"Assert class method")
@@ -163,7 +163,7 @@ function test_creator {
 				fi
 				
 				create_checklist_args whiplist_args classes "class"
-				get_radiolist_name CLASS_NAME whiplist_args "Assert class method" "Select class"
+				get_radiolist_name CLASS_NAME whiplist_args "Assert class method" "Select class" "No class selected! Please select a class."
 				split_string methods_class[$CLASS_NAME] current_methods " "
 				
 				if [ "${#current_methods[@]}" -eq 0 ]; then
@@ -172,10 +172,10 @@ function test_creator {
 				fi
 				
 				create_checklist_args whiplist_args current_methods "method"
-				get_radiolist_name METHOD_NAME whiplist_args "Assert class method" "Select method"
+				get_radiolist_name METHOD_NAME whiplist_args "Assert class method" "Select method" "No method selected! Please select a method."
 				get_message MESSAGE "Assert class method"
 				
-				echo "    ASSERT_CLASS_METHOD("$CLASS_NAME", "$METHOD_NAME", "'"'$MESSAGE'"'");" >> create_test_tmp.txt
+				echo "    ASSERT_CLASS_METHOD("$CLASS_NAME", "$METHOD_NAME", "'"'$MESSAGE'"'");" >> current_test.txt
 				whiptail --title "Create Test" --msgbox "Assert for class "$CLASS_NAME" for method "$METHOD_NAME" was added successfully!" 8 78
 				;;
 			"Assert class method signature")
@@ -185,7 +185,7 @@ function test_creator {
 				fi
 				
 				create_checklist_args whiplist_args classes "class"
-				get_radiolist_name CLASS_NAME whiplist_args "Assert class method signature" "Select class"
+				get_radiolist_name CLASS_NAME whiplist_args "Assert class method signature" "Select class" "No class selected! Please select a class."
 				split_string methods_class[$CLASS_NAME] current_methods " "
 				
 				if [ "${#current_methods[@]}" -eq 0 ]; then
@@ -194,7 +194,7 @@ function test_creator {
 				fi
 				
 				create_checklist_args whiplist_args current_methods "method"
-				get_radiolist_name METHOD_NAME whiplist_args "Assert class method signature" "Select method"
+				get_radiolist_name METHOD_NAME whiplist_args "Assert class method signature" "Select method" "No method selected! Please select a method."
 				split_string methods_sigs[$METHOD_NAME] current_method_sigs " "
 				
 				if [ "${#current_method_sigs[@]}" -eq 0 ]; then
@@ -206,7 +206,7 @@ function test_creator {
 				get_radiolist_signature SIGNATURE_NAME whiplist_args "Assert class method signature" "Select method signature. Do you remember them? :)"
 				get_message MESSAGE "Assert class method signature"
 				
-				echo "    ASSERT_CLASS_METHOD_SIGNATURE("$CLASS_NAME", "$METHOD_NAME", "$SIGNATURE_NAME", "'"'$MESSAGE'"'");" >> create_test_tmp.txt
+				echo "    ASSERT_CLASS_METHOD_SIGNATURE("$CLASS_NAME", "$METHOD_NAME", "$SIGNATURE_NAME", "'"'$MESSAGE'"'");" >> current_test.txt
 				whiptail --title "Create Test" --msgbox "Assert signature for method "$METHOD_NAME" in class "$CLASS_NAME" was added successfully!" 8 78
 				;;
 			"Assert class operator")
@@ -216,7 +216,7 @@ function test_creator {
 				fi
 				
 				create_checklist_args whiplist_args classes "class"
-				get_radiolist_name CLASS_NAME whiplist_args "Assert class operator" "Select class"
+				get_radiolist_name CLASS_NAME whiplist_args "Assert class operator" "Select class" "No class selected! Please select a class."
 				split_string operators_class[$CLASS_NAME] current_operators " "
 				
 				if [ "${#current_operators[@]}" -eq 0 ]; then
@@ -225,10 +225,10 @@ function test_creator {
 				fi
 				
 				create_checklist_args whiplist_args current_operators "operator"
-				get_radiolist_name OPERATOR_NAME whiplist_args "Assert class operator" "Select operator"
+				get_radiolist_name OPERATOR_NAME whiplist_args "Assert class operator" "Select operator" "No operator selected! Please select an operator."
 				get_message MESSAGE "Assert class operator"
 				
-				echo "    ASSERT_CLASS_OPERATOR("$CLASS_NAME", "$OPERATOR_NAME", "'"'$MESSAGE'"'");" >> create_test_tmp.txt
+				echo "    ASSERT_CLASS_OPERATOR("$CLASS_NAME", "$OPERATOR_NAME", "'"'$MESSAGE'"'");" >> current_test.txt
 				whiptail --title "Create Test" --msgbox "Assert for class "$CLASS_NAME" for operator "$OPERATOR_NAME" was added successfully!" 8 78
 				;;
 			"Assert class operator signature")
@@ -238,7 +238,7 @@ function test_creator {
 				fi
 				
 				create_checklist_args whiplist_args classes "class"
-				get_radiolist_name CLASS_NAME whiplist_args "Assert class operator signature" "Select class"
+				get_radiolist_name CLASS_NAME whiplist_args "Assert class operator signature" "Select class" "No class selected! Please select a class."
 				split_string operators_class[$CLASS_NAME] current_operators " "
 				
 				if [ "${#current_operators[@]}" -eq 0 ]; then
@@ -247,7 +247,7 @@ function test_creator {
 				fi
 				
 				create_checklist_args whiplist_args current_operators "operator"
-				get_radiolist_name OPERATOR_NAME whiplist_args "Assert class operator signature" "Select operator"
+				get_radiolist_name OPERATOR_NAME whiplist_args "Assert class operator signature" "Select operator" "No operator selected! Please select an operator."
 				split_string operators_sigs[$OPERATOR_NAME] current_operator_sigs " "
 				
 				if [ "${#current_operator_sigs[@]}" -eq 0 ]; then
@@ -259,7 +259,7 @@ function test_creator {
 				get_radiolist_signature SIGNATURE_NAME whiplist_args "Assert class operator signature" "Select operator signature. Do you remember them? :)"
 				get_message MESSAGE "Assert class operator signature"
 				
-				echo "    ASSERT_CLASS_OPERATOR_SIGNATURE("$CLASS_NAME", "$OPERATOR_NAME", "$SIGNATURE_NAME", "'"'$MESSAGE'"'");" >> create_test_tmp.txt
+				echo "    ASSERT_CLASS_OPERATOR_SIGNATURE("$CLASS_NAME", "$OPERATOR_NAME", "$SIGNATURE_NAME", "'"'$MESSAGE'"'");" >> current_test.txt
 				whiptail --title "Create Test" --msgbox "Assert signature for operator "$OPERATOR_NAME" in class "$CLASS_NAME" was added successfully!" 8 78
 				;;
 			"Assert class constructor")
@@ -269,23 +269,23 @@ function test_creator {
 				fi
 				
 		        create_checklist_args whiplist_args classes "constructor"
-				get_radiolist_name CLASS_NAME whiplist_args "Assert class constructor" "Select class"
+				get_radiolist_name CLASS_NAME whiplist_args "Assert class constructor" "Select class" "No class selected! Please select a class."
 				get_integer NR_INPUT_PARAMETERS "Assert class constructor" "How many parameters constructor of class $CLASS_NAME has?" "Invalid value! Enter a positive integer."
 				get_types UNUSED ALL_PARAMETERS NR_INPUT_PARAMETERS "Assert class constructor" "Enter the type of parameter" "Invalid type! Enter a valid type."
 				get_message MESSAGE "Assert class constructor"
 				
-		        echo "    ASSERT_CLASS_CONSTRUCTOR("'"'$MESSAGE'"'", "$CLASS_NAME", "$ALL_PARAMETERS") BEGIN {" >> create_test_tmp.txt      
+		        echo "    ASSERT_CLASS_CONSTRUCTOR("'"'$MESSAGE'"'", "$CLASS_NAME", "$ALL_PARAMETERS") BEGIN {" >> current_test.txt      
 																	##########    TODO    ##########	
-				echo "" >> create_test_tmp.txt
-				echo "    } END" >> create_test_tmp.txt
+				echo "" >> current_test.txt
+				echo "    } END" >> current_test.txt
 				whiptail --title "Create Test" --msgbox "Assert constructor for class "$CLASS_NAME" was added successfully!" 8 78	        	
 				;;
 			"Save & Exit")
 				if (whiptail --title "Save & Exit" --yesno "Do you want to save changes?" 8 78); then
 					whiptail --title "Save & Exit" --msgbox "Test "$SUITE_NAME"::"$TEST_NAME" was created!" 8 78
-					echo -e "\n}\n" >> create_test_tmp.txt
-					cat create_test_tmp.txt >> tests.h
-					rm create_test_tmp.txt 2> /dev/null
+					echo -e "\n}\n" >> current_test.txt
+					cat current_test.txt >> tests.h
+					rm current_test.txt 2> /dev/null
 					break
 				else
 					continue
@@ -293,7 +293,7 @@ function test_creator {
 				;;
 			*)
 				if (whiptail --title "Close" --yesno "Your changes will be lost. Do you want to return to main menu?" 8 78); then
-					rm create_test_tmp.txt 2> /dev/null
+					rm current_test.txt 2> /dev/null
 					break
 				fi
 				;;

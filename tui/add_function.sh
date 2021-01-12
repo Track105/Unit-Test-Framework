@@ -27,7 +27,7 @@ function add_function() {
 			fi
 			
 			create_checklist_args whiplist_args functions "function"
-			get_radiolist_name FUNCTION_NAME whiplist_args "Register function signature" "Select function"
+			get_radiolist_name FUNCTION_NAME whiplist_args "Register function signature" "Select function" "No function selected! Please select a function."
 			get_entity RETURN_TYPE "Register function signature" "Enter the return type of function $FUNCTION_NAME" "Invalid type! Enter a valid return type." "type"
 			get_template_postfix TEMPLATE_POSTFIX "Register function signature" "function $FUNCTION_NAME"
 			get_integer NR_INPUT_PARAMETERS "Register function signature" "How many parameters function $FUNCTION_NAME has?" "Invalid value! Enter a positive integer."

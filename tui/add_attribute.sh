@@ -41,7 +41,7 @@ function add_attribute() {
 			fi
 			
 			create_checklist_args whiplist_args attributes "attribute"
-			get_radiolist_name ATTRIBUTE_NAME whiplist_args "Register attribute signature" "Select attribute"
+			get_radiolist_name ATTRIBUTE_NAME whiplist_args "Register attribute signature" "Select attribute" "No attribute selected! Please select an attribute."
 			get_entity ATTRIBUTE_TYPE "Register attribute signature" "Enter the type of attribute $ATTRIBUTE_NAME" "Invalid type! Enter a valid attribute type." "type"
 			get_template_postfix TEMPLATE_POSTFIX "Register attribute signature" "attribute $ATTRIBUTE_NAME"
 

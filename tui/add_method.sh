@@ -41,7 +41,7 @@ function add_method {
 			fi
 			
 			create_checklist_args whiplist_args methods "method"
-			get_radiolist_name METHOD_NAME whiplist_args "Register method signature" "Select method"
+			get_radiolist_name METHOD_NAME whiplist_args "Register method signature" "Select method" "No method selected! Please select a method."
 			get_entity RETURN_TYPE "Register method signature" "Enter the return type of method $METHOD_NAME" "Invalid type! Enter a valid return type." "type"
 			get_template_postfix TEMPLATE_POSTFIX "Register method signature" "method $METHOD_NAME"
 			get_integer NR_INPUT_PARAMETERS "Register method signature" "How many parameters method $METHOD_NAME has?" "Invalid value! Enter a positive integer."
