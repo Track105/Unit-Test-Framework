@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Unit Test Framework for compile time checking in VPL
+# @Copyright (C) 2020 Andrei-Edward Popa
+# @Author Andrei-Edward Popa <andrei_edward.popa@upb.ro>
+
 . common_script.sh
 check_program g++
 mv vpl_evaluate.cpp vpl_evaluate.cpp_

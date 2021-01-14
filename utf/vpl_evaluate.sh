@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Unit Test Framework for compile time checking in VPL
+# @Copyright (C) 2020 Andrei-Edward Popa
+# @Author Andrei-Edward Popa <andrei_edward.popa@upb.ro>
+
 . common_script.sh
 
 if [ "$SECONDS" = "" ] ; then
@@ -97,7 +101,11 @@ else
 	
 	cp vpl_evaluate.cpp saved_vpl_evaluate.cpp
 	cat student_impl.txt > vpl_evaluate.cpp
-	sed -i '1s/^/struct __HACK__ {\n/' student_impl.txt
+	if [ ! -s student_impl.txt ]; then
+		echo 'struct __HACK__ {' > student_impl.txt
+	else
+		sed -i '1s/^/struct __HACK__ {\n/' student_impl.txt
+	fi
 	echo "};" >> student_impl.txt
 	sed -i -E 's/\s*using\s+namespace\s+[A-Za-z0-9:_]+\s*;\s*//g' student_impl.txt
 	while IFS= read -r class
