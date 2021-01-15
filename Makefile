@@ -19,7 +19,7 @@ mrproper:
 	
 .SILENT: test
 test:
-	printf "How do you want to create the tests? (automatic/manually): "
+	printf "How do you want to create the tests? (automatic/manual): "
 	read mode;                                          \
 	if [ $$mode = "automatic" ]; then                   \
 		cd tcs;                                         \
@@ -32,7 +32,7 @@ test:
 		python3 test_creator.py;                        \
 		mv main.cpp main.tcs;                           \
 		echo "Test file 'tcs/tests.h' was created!";    \
-	elif [ $$mode = "manually" ]; then                  \
+	elif [ $$mode = "manual" ]; then                    \
 		cd tui;                                         \
 		./start_tui.sh;                                 \
 		echo "Test file 'tui/tests.h' was created!";    \
