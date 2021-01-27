@@ -21,6 +21,9 @@ struct Test {
 
 int main() {
 	int a;
+	for (uint64_t i = 0; i < 1000000000; i++) {
+	
+	}
 	std::cin >> a;
 	std::cout << a;
 	return 0;

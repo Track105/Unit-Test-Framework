@@ -4,12 +4,14 @@ REQUIRES=Function::Name_multiply
 CASE=Test #2
 INPUT=2
 OUTPUT=2
+EXECTIME=1.50s
 REQUIRES=Class_Test::Class_Existence
 
 CASE=Test #3
 INPUT=3
 OUTPUT=3
 DEPENDENCIES=Test #2
+EXECTIME=6.55ms
 REQUIRES=Class_Test::Attributes_tmp_ftmp_Existence
 
 CASE=Test #4
