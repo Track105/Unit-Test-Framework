@@ -16,6 +16,7 @@ mrproper:
 	rm -f tcs/extract.conf
 	rm -f tcs/tests.h
 	rm -rf tcs/xml
+	rm -f *.txt
 	
 .SILENT: test
 test:
