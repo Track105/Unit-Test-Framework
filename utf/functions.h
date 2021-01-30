@@ -358,6 +358,7 @@ static char segmentation_fault_case[64][2][1024];
 		                                   
 #define BEGIN
 #define END });
+#define COMMA_HACK ,
 #define PARAM void*
 #define RETURN void
 #define NO_ARG(sign) RETURN operator sign() {}

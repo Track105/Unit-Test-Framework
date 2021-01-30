@@ -140,7 +140,7 @@ else
 		cat vpl_evaluate.cpp.save >> vpl_evaluate.cpp
 		check_program g++
 		SOURCE_FILES_WITHOUT_MAIN=${SOURCE_FILES//$main_file/}
-		g++ -std=c++17 -fconcepts $SOURCE_FILES_WITHOUT_MAIN vpl_evaluate.cpp -g -lm -lutil -o .vpl_tester
+		g++ --param ggc-min-expand=10 --param ggc-min-heapsize=8192 -std=c++17 -fconcepts $SOURCE_FILES_WITHOUT_MAIN vpl_evaluate.cpp -g -lm -lutil -o .vpl_tester
 		mv functions.h functions.h_
 		mv tests.h tests.h_
 		mv structures.h structures.h_
