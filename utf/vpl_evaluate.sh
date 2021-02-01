@@ -43,15 +43,34 @@ else
 	
 	get_source_files cpp
 	
-	for file in $SOURCE_FILES
-	do
-	    line=`zgrep -nE "^\s*int\s+main\s*\(\s*\)\s*" $file | cut -f1 -d:`
-	    if [[ ! -z $line ]]; then
-	        main_file="$file"
-	        main_line="$line"
-	        break
-	    fi
+	for file in $SOURCE_FILES; do
+		count=1
+		prev_line=""
+	    while read line; do
+	    	if [[ $line =~ ^\s*$ ]]; then
+	    		count=$(($count+1))
+	    		continue
+	    	fi
+	    	if [[ $prev_line =~ int.*\; || ( ! $prev_line =~ int  && ! $prev_line =~ main && ! $prev_line =~ \( ) ]]; then
+	    		printf "%05d" $count >> extract_main.txt
+	    	fi
+			printf "%s" $line >> extract_main.txt
+			printf "\n" >> extract_main.txt
+			count=$(($count+1))
+			prev_line=$line
+		done < $file
+		tr -d '[:space:]' < extract_main.txt > extract_main_2.txt
+		special_number=`cat extract_main_2.txt | grep -b -o "intmain()" | cut -d: -f1`
+		file_content=`cat extract_main_2.txt`
+
+		if [[ ! -z $special_number ]]; then
+			main_file=$file
+			main_line=$((${file_content:$(($special_number-5)):5}+4))
+		fi
+
+		rm -f extract_main.txt extract_main_2.txt
 	done
+	
 	if [[ ! -z $main_file ]]; then
 	
 		tail -n +$main_line $main_file > student_after_main.txt
