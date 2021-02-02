@@ -67,15 +67,17 @@ else
 		
 		grep -e "^\s*CLASS" tests.h | cut -d'(' -f 2 | cut -d')' -f 1 > classes.txt
 		
-		sed -i -E 's/^\s{0,1}[A-Za-z_][A-Za-z0-9_\*\&]*\s+[\*\&A-Za-z_]*[A-Za-z0-9_]*\s*\((\s*[A-Za-z_][A-Za-z0-9_\*\&]*\s+[\*\&A-Za-z_]*[A-Za-z0-9_]*\s*,{0,1}\s*){1,}\s*\)\s*;\s*$//g' $main_file
-		sed -i 's/class/struct/g' $main_file
-		sed -i 's/private\s*:/public:/g' $main_file
-		sed -i 's/protected\s*:/public:/g' $main_file
-		sed -i 's/operator\s*=\s*/operatorEqual/g' $main_file
+		cat $main_file > main_prog.txt
+		
+		sed -i -E 's/^\s{0,1}[A-Za-z_][A-Za-z0-9_\*\&]*\s+[\*\&A-Za-z_]*[A-Za-z0-9_]*\s*\((\s*[A-Za-z_][A-Za-z0-9_\*\&]*\s+[\*\&A-Za-z_]*[A-Za-z0-9_]*\s*,{0,1}\s*){1,}\s*\)\s*;\s*$//g' main_prog.txt
+		sed -i 's/class/struct/g' main_prog.txt
+		sed -i 's/private\s*:/public:/g' main_prog.txt
+		sed -i 's/protected\s*:/public:/g' main_prog.txt
+		sed -i 's/operator\s*=\s*/operatorEqual/g' main_prog.txt
 		
 		cp vpl_evaluate.cpp saved_vpl_evaluate.cpp
-		cat $main_file > vpl_evaluate.cpp
-		cat $main_file > student_impl.txt
+		cat main_prog.txt > vpl_evaluate.cpp
+		cat main_prog.txt > student_impl.txt
 		if [ ! -s student_impl.txt ]; then
 			echo 'struct __HACK__ {' > student_impl.txt
 		else
@@ -93,6 +95,7 @@ else
 		
 		rm -f saved_vpl_evaluate.cpp
 		rm -f student_impl.txt
+		rm -f main_prog.txt
 		rm -f classes.txt
 		
 		#avoid conflict with C++ compilation
