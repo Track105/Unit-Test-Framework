@@ -44,59 +44,19 @@ else
 	get_source_files cpp
 	
 	for file in $SOURCE_FILES; do
-		count=1
-		prev_line=""
-	    while read line; do
-	    	if [[ $line =~ ^\s*$ ]]; then
-	    		count=$(($count+1))
-	    		continue
-	    	fi
-	    	if [[ $prev_line =~ int.*\; || ( ! $prev_line =~ int  && ! $prev_line =~ main && ! $prev_line =~ \( ) ]]; then
-	    		printf "%05d" $count >> extract_main.txt
-	    	fi
-			printf "%s" $line >> extract_main.txt
-			printf "\n" >> extract_main.txt
-			count=$(($count+1))
-			prev_line=$line
-		done < $file
-		tr -d '[:space:]' < extract_main.txt > extract_main_2.txt
-		special_number=`cat extract_main_2.txt | grep -b -o "intmain()" | cut -d: -f1`
-		file_content=`cat extract_main_2.txt`
+		tr -d '[:space:]' < $file > extract_main.txt
+		main_exists=`cat extract_main.txt | grep -b -o "intmain(.*){"`
 
-		if [[ ! -z $special_number ]]; then
+		if [[ ! -z $main_exists ]]; then
 			main_file=$file
-			main_line=$((${file_content:$(($special_number-5)):5}+4))
+			rm -f extract_main.txt
+			break
 		fi
 
-		rm -f extract_main.txt extract_main_2.txt
+		rm -f extract_main.txt
 	done
 	
 	if [[ ! -z $main_file ]]; then
-	
-		tail -n +$main_line $main_file > student_after_main.txt
-		count_lines=0
-		count_brackets=0
-		first_occ=0
-		while IFS= read -r line
-		do
-			
-			for (( i=0; i<${#line}; i++ )); do   
-
-				if [ "${line:$i:1}" == "}" ]; then
-					count_brackets=$(($count_brackets - 1))
-				fi
-				if [ "${line:$i:1}" == "{" ]; then
-					count_brackets=$(($count_brackets + 1))
-					first_occ=1
-				fi
-						
-			done
-			count_lines=$(($count_lines + 1))
-			if [[ $first_occ == 1 && $count_brackets == 0 ]]; then
-				break
-			fi
-
-		done < "student_after_main.txt"
 
 		get_source_files cpp h hpp
 		
@@ -107,20 +67,15 @@ else
 		
 		grep -e "^\s*CLASS" tests.h | cut -d'(' -f 2 | cut -d')' -f 1 > classes.txt
 		
-		let prev_line_main=$main_line-1
-		head -n $prev_line_main $main_file > student_impl.txt
-		all_lines=$(($count_lines + $main_line))
-		if [[ `grep -c ^ $main_file` != $all_lines ]]; then
-			tail -n +$(($count_lines+1)) student_after_main.txt >> student_impl.txt
-		fi
-		sed -i -E 's/^\s{0,1}[A-Za-z_][A-Za-z0-9_\*\&]*\s+[\*\&A-Za-z_]*[A-Za-z0-9_]*\s*\((\s*[A-Za-z_][A-Za-z0-9_\*\&]*\s+[\*\&A-Za-z_]*[A-Za-z0-9_]*\s*,{0,1}\s*){1,}\s*\)\s*;\s*$//g' student_impl.txt
-		sed -i 's/class/struct/g' student_impl.txt
-		sed -i 's/private\s*:/public:/g' student_impl.txt
-		sed -i 's/protected\s*:/public:/g' student_impl.txt
-		sed -i 's/operator\s*=\s*/operatorEqual/g' student_impl.txt
+		sed -i -E 's/^\s{0,1}[A-Za-z_][A-Za-z0-9_\*\&]*\s+[\*\&A-Za-z_]*[A-Za-z0-9_]*\s*\((\s*[A-Za-z_][A-Za-z0-9_\*\&]*\s+[\*\&A-Za-z_]*[A-Za-z0-9_]*\s*,{0,1}\s*){1,}\s*\)\s*;\s*$//g' $main_file
+		sed -i 's/class/struct/g' $main_file
+		sed -i 's/private\s*:/public:/g' $main_file
+		sed -i 's/protected\s*:/public:/g' $main_file
+		sed -i 's/operator\s*=\s*/operatorEqual/g' $main_file
 		
 		cp vpl_evaluate.cpp saved_vpl_evaluate.cpp
-		cat student_impl.txt > vpl_evaluate.cpp
+		cat $main_file > vpl_evaluate.cpp
+		cat $main_file > student_impl.txt
 		if [ ! -s student_impl.txt ]; then
 			echo 'struct __HACK__ {' > student_impl.txt
 		else
@@ -133,12 +88,13 @@ else
 			sed -i '2s/^/class '${class}';\n/' student_impl.txt
 		done < "classes.txt"
 		cat student_impl.txt >> vpl_evaluate.cpp
+		echo "#undef main" >> vpl_evaluate.cpp
 		cat saved_vpl_evaluate.cpp >> vpl_evaluate.cpp
+		
 		rm -f saved_vpl_evaluate.cpp
 		rm -f student_impl.txt
 		rm -f classes.txt
-		rm -f student_after_main.txt
-
+		
 		#avoid conflict with C++ compilation
 		./vpl_run.sh
 
@@ -153,8 +109,9 @@ else
 				exit 1
 			fi
 			#Add constants to vpl_evaluate.cpp
-			echo "const float VPL_GRADEMIN=$VPL_GRADEMIN;" >vpl_evaluate.cpp
-			echo "const float VPL_GRADEMAX=$VPL_GRADEMAX;" >>vpl_evaluate.cpp
+			echo "#define main unused_function" > vpl_evaluate.cpp
+			echo "const float VPL_GRADEMIN=$VPL_GRADEMIN;" >> vpl_evaluate.cpp
+			echo "const float VPL_GRADEMAX=$VPL_GRADEMAX;" >> vpl_evaluate.cpp
 			let VPL_MAXTIME=VPL_MAXTIME-$SECONDS-1;
 			echo "const int VPL_MAXTIME=$VPL_MAXTIME;" >>vpl_evaluate.cpp
 			cat vpl_evaluate.cpp.save >> vpl_evaluate.cpp
