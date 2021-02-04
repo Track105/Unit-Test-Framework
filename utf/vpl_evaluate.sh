@@ -69,7 +69,7 @@ else
 		
 		cat $main_file > main_prog.txt
 		
-		sed -i -E 's/^\s{0,1}[A-Za-z_][A-Za-z0-9_\*\&]*\s+[\*\&A-Za-z_]*[A-Za-z0-9_]*\s*\((\s*[A-Za-z_][A-Za-z0-9_\*\&]*\s+[\*\&A-Za-z_]*[A-Za-z0-9_]*\s*,{0,1}\s*){1,}\s*\)\s*;\s*$//g' main_prog.txt
+		sed -i -E 's/^[A-Za-z_][A-Za-z0-9_\*\&]*\s+[\*\&A-Za-z_]*[A-Za-z0-9_]*\s*\((\s*[A-Za-z_][A-Za-z0-9_\*\&]*\s+[\*\&A-Za-z_]*[A-Za-z0-9_]*\s*,{0,1}\s*){1,}\s*\)\s*;\s*$//g' main_prog.txt
 		sed -i 's/class/struct/g' main_prog.txt
 		sed -i 's/private\s*:/public:/g' main_prog.txt
 		sed -i 's/protected\s*:/public:/g' main_prog.txt
@@ -78,6 +78,9 @@ else
 		cp vpl_evaluate.cpp saved_vpl_evaluate.cpp
 		cat main_prog.txt > vpl_evaluate.cpp
 		cat main_prog.txt > student_impl.txt
+		while read class; do
+			sed -i 's/'$class':://g' student_impl.txt
+		done < classes.txt
 		if [ ! -s student_impl.txt ]; then
 			echo 'struct __HACK__ {' > student_impl.txt
 		else
