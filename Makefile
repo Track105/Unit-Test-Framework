@@ -24,6 +24,9 @@ test:
 	read mode;                                          \
 	if [ $$mode = "automatic" ]; then                   \
 		cd tcs;                                         \
+		if [ ! dpkg -s python3 >/dev/null 2>&1 ]; then  \
+			sudo apt-get install python3;               \
+		fi;                                             \
 		if [ ! dpkg -s doxygen >/dev/null 2>&1 ]; then  \
 			sudo apt-get install doxygen;               \
 		fi;                                             \
@@ -32,6 +35,7 @@ test:
 		python3 parser.py;                              \
 		python3 test_creator.py;                        \
 		mv main.cpp main.tcs;                           \
+		pyclean .                                       \
 		echo "Test file 'tcs/tests.h' was created!";    \
 	elif [ $$mode = "manual" ]; then                    \
 		cd tui;                                         \
