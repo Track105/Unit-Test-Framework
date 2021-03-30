@@ -5,6 +5,10 @@
  */
 
 
+
+
+
+
 CLASS(Test);
 
 CHECK_CLASS_ATTRIBUTE(tmp);
@@ -15,8 +19,8 @@ CHECK_CLASS_METHOD(sum);
 
 CHECK_FUNCTION(multiply);
 
-CHECK_CLASS_ATTRIBUTE_SIGNATURE(tmp, int T::*, tmp_int);
-CHECK_CLASS_ATTRIBUTE_SIGNATURE(ftmp, float T::*, ftmp_float);
+CHECK_CLASS_ATTRIBUTE_SIGNATURE(tmp, int, tmp_int);
+CHECK_CLASS_ATTRIBUTE_SIGNATURE(ftmp, float, ftmp_float);
 
 CHECK_CLASS_METHOD_SIGNATURE(print, void (T::*)(), rv_print_);
 CHECK_CLASS_METHOD_SIGNATURE(sum, int (T::*)(int, int), ri_sum_ii);

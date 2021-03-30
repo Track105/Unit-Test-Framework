@@ -10,6 +10,7 @@
 #include "structures.h"
 
 static std::unordered_map<std::string, std::vector<utf::Test<utf::any>>> suites;
+static std::unordered_map<std::string, std::string> entityMapper;
 static int segmentation_fault_case_index = 0;                           
 static char segmentation_fault_case[64][2][1024];
 
@@ -110,17 +111,17 @@ static char segmentation_fault_case[64][2][1024];
 	
 #define ASSERT_FUNCTION(function_name, message)                                                                                                                                 \
 	ASSERT_CALL_FUNCTION(function_name)                                                                                                                                         \
-	const bool __class___HACK___has_function_##function_name##__ = __has_function_##function_name##__<__HACK__>::value;                                                         \
+	const bool __class___GlobalFunctionWrapper___has_function_##function_name##__ = __has_function_##function_name##__<__GlobalFunctionWrapper__>::value;                                                         \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
-								   __class___HACK___has_function_##function_name##__ == true });                                                                                \
+								   __class___GlobalFunctionWrapper___has_function_##function_name##__ == true });                                                               \
 	END
 	
 #define ASSERT_FUNCTION_SIGNATURE(function_name, template_postfix, message)                                                                                                     \
 	ASSERT_CALL_FUNCTION(function_name)                                                                                                                                         \
-	const bool __class___HACK___has_function_##function_name##_with_##template_postfix##__ = __has_function_with_sig_##template_postfix##__<__HACK__>::value;                   \
+	const bool __class___GlobalFunctionWrapper___has_function_##function_name##_with_##template_postfix##__ = __has_function_with_sig_##template_postfix##__<__GlobalFunctionWrapper__>::value;                   \
 	holder->m_assertions.push_back(utf::Assertion<T>{ std::string(message) + "\n", "", 0, 0,                                                                                    \
-			 __class___HACK___has_function_##function_name##_with_##template_postfix##__ == true });                                                                            \
-	if constexpr (__class___HACK___has_function_##function_name##_with_##template_postfix##__)
+			 __class___GlobalFunctionWrapper___has_function_##function_name##_with_##template_postfix##__ == true });                                                           \
+	if constexpr (__class___GlobalFunctionWrapper___has_function_##function_name##_with_##template_postfix##__)
 	
 #define ASSERT_CLASS_OPERATOR(class_name, operator_template, message)                                                                                                           \
 	ASSERT_CALL_CLASS(class_name)                                                                                                                                               \
@@ -153,8 +154,8 @@ static char segmentation_fault_case[64][2][1024];
 		__class_##class_name##_exists__ = true;
 		
 #define ASSERT_CALL_FUNCTION(function_name)                                                                                                                                     \
-	utf::call_if_class_defined<struct __HACK__>(holder, [&](utf::Holder<utf::any> *holder, auto* ptr_##function_name) constexpr -> void {                                       \
-		using __HACK__ = std::decay_t<decltype(*ptr_##function_name)>;
+	utf::call_if_class_defined<struct __GlobalFunctionWrapper__>(holder, [&](utf::Holder<utf::any> *holder, auto* ptr_##function_name) constexpr -> void {                      \
+		using __GlobalFunctionWrapper__ = std::decay_t<decltype(*ptr_##function_name)>;
 		
 #define CLASS(class_name)                                                                                                                                                       \
 	class class_name;                                                                                                                                                           \
@@ -273,10 +274,10 @@ static char segmentation_fault_case[64][2][1024];
 			                                                                                                                                                                    \
 	template<typename T>                                                                                                                                                        \
 	struct __has_attribute_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                      \
-		                                   utf::sig_check<signature, &T::attribute_name>::value>> : std::true_type {};                                                          \
+		                                   utf::sig_check<signature T::*, &T::attribute_name>::value>> : std::true_type {};                                                     \
 	template<typename T>                                                                                                                                                        \
 	struct __has_entity_with_sig_##template_postfix##__<T, std::integral_constant<bool,                                                                                         \
-		                                   utf::sig_check<signature, &T::attribute_name>::value>> : std::true_type {}
+		                                   utf::sig_check<signature T::*, &T::attribute_name>::value>> : std::true_type {}
 		                                   
 #define CHECK_CLASS_OPERATOR(operator_name, operator_template)                                                                                                                  \
 	template<typename T, typename... Ts>                                                                                                                                        \
