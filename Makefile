@@ -20,28 +20,18 @@ mrproper:
 	
 .SILENT: test
 test:
-	printf "How do you want to create the tests? (automatic/manual): "
-	read mode;                                          \
-	if [ $$mode = "automatic" ]; then                   \
-		cd tcs;                                         \
-		if [ ! dpkg -s python3 >/dev/null 2>&1 ]; then  \
-			sudo apt-get install python3;               \
-		fi;                                             \
-		if [ ! dpkg -s doxygen >/dev/null 2>&1 ]; then  \
-			sudo apt-get install doxygen;               \
-		fi;                                             \
-		mv main.tcs main.cpp;                           \
-		doxygen config.doxy;                            \
-		python3 parser.py;                              \
-		python3 test_creator.py;                        \
-		mv main.cpp main.tcs;                           \
-		pyclean .                                       \
-		echo "Test file 'tcs/tests.h' was created!";    \
-	elif [ $$mode = "manual" ]; then                    \
-		cd tui;                                         \
-		./start_tui.sh;                                 \
-		echo "Test file 'tui/tests.h' was created!";    \
-	else                                                \
-		echo "Invalid command! Stop!";                  \
-	fi
+	cd tcs;                                         \
+	if [ ! dpkg -s python3 >/dev/null 2>&1 ]; then  \
+		sudo apt-get install python3;               \
+	fi;                                             \
+	if [ ! dpkg -s doxygen >/dev/null 2>&1 ]; then  \
+		sudo apt-get install doxygen;               \
+	fi;                                             \
+	mv main.tcs main.cpp;                           \
+	doxygen config.doxy;                            \
+	python3 parser.py;                              \
+	python3 test_creator.py;                        \
+	mv main.cpp main.tcs;                           \
+	pyclean .;                                      \
+	echo "Test file 'tcs/tests.h' was created!"
 
