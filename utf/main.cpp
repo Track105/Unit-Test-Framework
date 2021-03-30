@@ -16,6 +16,10 @@ struct Test {
 	}
 	Test() : tmp(10), ftmp(12.45f) { };
 	Test(int a, float b) : tmp(a), ftmp(b) { }
+	
+	Test operator+(const Test& test) {
+		return Test(tmp + test.tmp, ftmp + test.ftmp);
+	}
 
 };
 
