@@ -5,111 +5,93 @@
  */
 
 
+REFLECT_CLASS(Test) {
+	REFLECT_ATTRIBUTE(tmp, int);
+	REFLECT_ATTRIBUTE(ftmp, float);
+	REFLECT_METHOD(print, void);
+	REFLECT_METHOD(sum, int, int, int);
+	REFLECT_OPERATOR(operator+, operatorPlus, Test, const Test&);
+};
 
-
-
-
-CLASS(Test);
-
-CHECK_CLASS_ATTRIBUTE(tmp);
-CHECK_CLASS_ATTRIBUTE(ftmp);
-
-CHECK_CLASS_METHOD(print);
-CHECK_CLASS_METHOD(sum);
-
-CHECK_FUNCTION(multiply);
-
-CHECK_CLASS_ATTRIBUTE_SIGNATURE(tmp, int, tmp_int);
-CHECK_CLASS_ATTRIBUTE_SIGNATURE(ftmp, float, ftmp_float);
-
-CHECK_CLASS_METHOD_SIGNATURE(print, void (T::*)(), rv_print_);
-CHECK_CLASS_METHOD_SIGNATURE(sum, int (T::*)(int, int), ri_sum_ii);
-
-CHECK_FUNCTION_SIGNATURE(multiply, int (T::*)(int, int), int_multiply_int_int);
+REFLECT_FUNCTION(multiply, int, int, int);
 
 
 TEST(Segmentation, Fault) {
 
-	SEGMENTATION_FAULT_MESSAGE("Test", "Message");
+	REFLECT_SEGMENTATION_FAULT("Test #1", "Segmentation fault message for Test #1.");
 	
 }
 
 
-TEST(Function, Name_multiply) {
+TEST(Function, Multiply) {
+
+	// Generate SIGSEGV
+	// int *p = NULL;
+	// *p = 1;
 	
-    ASSERT_FUNCTION(multiply, "Function 'multiply' DOES NOT exist!");
+	ASSERT_FUNCTION(multiply, "Check existence or signature for function 'multiply'") BEGIN {
 	
-	ASSERT_FUNCTION_SIGNATURE(multiply, int_multiply_int_int, "Signature for function 'multiply' IS NOT correct!") BEGIN {
-		
-		ASSERT_EQUAL(multiply(3, 2), 6, "Function 'multiply' DOES NOT return the required result!");
+		ASSERT_EQUAL(multiply(3, 2), 6, "Function 'multiply' doesn't return the required result!");
 		
 	} END
     
 }
 
 
-TEST(Class_Test, Class_Existence) {
+TEST(Test, Existence) {
 
-	ASSERT_CLASS(Test, "Class 'Test' HAS NOT BEEN defined!");
+	ASSERT_CLASS(Test, "Class 'Test' doesn't exist!");
 	
 }
 
 
-TEST(Class_Test, Attributes_tmp_ftmp_Existence) {
+TEST(Test, Attributes_tmp_ftmp) {
 	
-	ASSERT_CLASS_ATTRIBUTE(Test, tmp, "Class 'Test' HAS NOT 'tmp' attribute!");	
-	ASSERT_CLASS_ATTRIBUTE(Test, ftmp, "Class 'Test' HAS NOT 'ftmp' attribute!");
-	
-}
-
-TEST(Class_Test, Attributes_tmp_ftmp_Signatures) {
-
-	ASSERT_CLASS_ATTRIBUTE_SIGNATURE(Test, tmp, tmp_int, "Class 'Test' HAS NOT an integer 'tmp' attribute!");
-	ASSERT_CLASS_ATTRIBUTE_SIGNATURE(Test, ftmp, ftmp_float, "Class 'Test' HAS NOT a float 'ftmp' attribute!");
+	ASSERT_ATTRIBUTE(Test, tmp, "Check existence or type for attribute 'tmp' from class 'Test'!");	
+	ASSERT_ATTRIBUTE(Test, ftmp, "Check existence or type for attribute 'ftmp' from class 'Test'");
 	
 }
 
 
-TEST(Class_Test, Methods_print_sum_Existence) {
+TEST(Test, Methods_print_sum) {
 	
-	ASSERT_CLASS_METHOD(Test, print, "Class 'Test' HAS NOT 'print' method!");
-	ASSERT_CLASS_METHOD(Test, sum, "Class 'Test' HAS NOT 'sum' method!");
+	ASSERT_METHOD(Test, print, "Check existence or signature for method 'print' from class 'Test'!");
+	ASSERT_METHOD(Test, sum, "Check existence or signature for method 'sum' from class 'Test'!");
+	
+}
+
+TEST(Test, OperatorPlus) {
+	
+	ASSERT_OPERATOR(Test, operatorPlus, "Check existence or signature for operator 'operator+' from class 'Test'!");
 	
 }
 
 
-TEST(Class_Test, Methods_print_sum_Signatures) {
-		
-	ASSERT_CLASS_METHOD_SIGNATURE(Test, sum, ri_sum_ii, "Signature for method 'sum' in class 'Test' IS NOT correct!");
-	ASSERT_CLASS_METHOD_SIGNATURE(Test, print, rv_print_, "Signature for method 'print' in class 'Test' IS NOT correct!");
-		
-}
+TEST(Test, DefaultConstructor) {	
 
-
-TEST(Class_Test, Default_Constructor) {	
-
-	ASSERT_CLASS_CONSTRUCTOR("Default constructor DOES NOT exist!", Test) BEGIN {
+	ASSERT_CONSTRUCTOR("Default constructor doesn't exist!", Test) BEGIN {
 		Test test_default;
-		auto tmp = __check_attribute_tmp__(&test_default);
-		auto ftmp = __check_attribute_ftmp__(&test_default);
-		auto sum = __check_method_sum__(&test_default, 2, 3);
-		ASSERT_EQUAL(tmp, 10, "Default constructor DOES NOT initialize the attribute 'tmp' correctly!");
-		ASSERT_EQUAL(ftmp, 12.45f, "Default constructor DOES NOT initialize the attribute 'ftmp' correctly!");
-		ASSERT_EQUAL(sum, 15, "Method 'sum' from class 'Test' DOES NOT return the required result!");
+		auto tmp = TestWrapper::tmp(&test_default);
+		auto ftmp = TestWrapper::ftmp(&test_default);
+		auto sum = TestWrapper::sum(&test_default, 2, 3);
+		ASSERT_EQUAL(tmp, 10, "Default constructor doesn't initialize the attribute 'tmp' correctly!");
+		ASSERT_EQUAL(ftmp, 12.45f, "Default constructor doesn't initialize the attribute 'ftmp' correctly!");
+		ASSERT_EQUAL(sum, 15, "Method 'sum' from class 'Test' doesn't return the required result!");
 	} END
 	
 }
 
 
-TEST(Class_Test, Two_Arguments_Constructor) {
+TEST(Test, TwoArgumentsConstructor) {
 		
-	ASSERT_CLASS_CONSTRUCTOR("Constructor with args (int, float) DOES NOT exist!", Test, int, float) BEGIN {
+	ASSERT_CONSTRUCTOR("Constructor with args (int, float) doesn't exist!", Test, int, float) BEGIN {
 		Test test_int_float(1, 1.5f);
-		auto tmp = __check_attribute_tmp__(&test_int_float);
-		auto ftmp = __check_attribute_ftmp__(&test_int_float);
-		auto sum = __check_method_sum__(&test_int_float, 2, 3);
-		ASSERT_EQUAL(tmp, 1, "Constructor with args (int, float) DOES NOT initialize the attribute 'tmp' correctly!");
-		ASSERT_EQUAL(ftmp, 1.5f, "Constructor with args (int, float) DOES NOT initialize the attribute 'ftmp' correctly!");	
+		auto tmp = TestWrapper::tmp(&test_int_float);
+		auto ftmp = TestWrapper::ftmp(&test_int_float);
+		auto sum = TestWrapper::sum(&test_int_float, 2, 3);
+		ASSERT_EQUAL(tmp, 1, "Constructor with args (int, float) doesn't initialize the attribute 'tmp' correctly!");
+		ASSERT_EQUAL(ftmp, 1.5f, "Constructor with args (int, float) doesn't initialize the attribute 'ftmp' correctly!");
+		ASSERT_EQUAL(sum, 6, "Method 'sum' from class 'Test' doesn't return the required result!");
 	} END
 	
 }
