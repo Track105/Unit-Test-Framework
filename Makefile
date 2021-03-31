@@ -1,6 +1,6 @@
 .PHONY: run
 run:
-	cp utf/* .;                                         \
+	cp utf/* .;                                     \
 	./vpl_evaluate.sh
 
 .PHONY: mrproper
@@ -28,10 +28,27 @@ test:
 	mv main.cpp main.tcs;                           \
 	pyclean .;                                      \
 	echo "Test file 'tcs/tests.h' was created!"
-	
-.PHONY: requirements
-requirements:
-	sudo apt install python3
-	sudo apt install doxygen
-	sudo apt install python3-lxml
 
+.SILENT: requirements
+requirements:
+	OS=$(shell awk '/DISTRIB_ID=/' /etc/*-release | sed 's/DISTRIB_ID=//' | tr '[:upper:]' '[:lower:]');      \
+	if [ $$OS = "ubuntu" ] || [ $$OS = "linuxmint" ] || [ $$OS = "debian" ]; then                             \
+		sudo apt update;                                                                                      \
+		sudo apt install -y python3;                                                                          \
+		sudo apt install -y doxygen;                                                                          \
+		sudo apt install -y python3-lxml;                                                                     \
+	elif [ $$OS = "centos" ]; then                                                                            \
+		sudo yum update -y;                                                                                   \
+		sudo yum install -y python3;                                                                          \
+		sudo yum install -y doxygen;                                                                          \
+		sudo yum install -y python3-lxml;                                                                     \
+	elif [ $$OS = "arch" ]; then                                                                              \
+		sudo pacman -Syu;                                                                                     \
+		yes | sudo pacman -S python3;                                                                         \
+		yes | sudo pacman -S doxygen;                                                                         \
+		yes | sudo pacman -S python-pip;                                                                      \
+		pip install lxml;                                                                                     \
+	else                                                                                                      \
+		echo "Your distrubution is not added to the application. You are on your own.";                       \
+	fi
+	
