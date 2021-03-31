@@ -21,6 +21,7 @@ mrproper:
 .SILENT: test
 test:
 	cd tcs;                                         \
+	rm -f tests.h;                                  \
 	mv main.tcs main.cpp;                           \
 	doxygen config.doxy;                            \
 	python3 parser.py;                              \

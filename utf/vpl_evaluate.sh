@@ -73,7 +73,7 @@ else
 		sed -i 's/class/struct/g' main_prog.txt
 		sed -i 's/private\s*:/public:/g' main_prog.txt
 		sed -i 's/protected\s*:/public:/g' main_prog.txt
-		sed -i 's/operator\s*=\s*/operatorEqual/g' main_prog.txt
+		sed -i 's/operator\s*=\s*(/operatorEqual(/g' main_prog.txt
 		
 		cp vpl_evaluate.cpp saved_vpl_evaluate.cpp
 		cat main_prog.txt > vpl_evaluate.cpp
