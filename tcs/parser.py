@@ -144,8 +144,9 @@ for xml_file in glob.glob(PATH_TO_FILES):
                 
                 params = ",".join(parsed_args)
                 params = "" if (is_const_qualified == 1 and params == "None ") else params
+                params = params if (params == "None " or len(params.strip()) == 0) else params.strip() + ", "
                 params = params + "const" if (is_const_qualified == 1) else params
-                	
+                
                 if not (entity_name.isidentifier()):
                     out_file.write(OPERATOR % (class_name, entity_name, return_type, params))
                 else:
