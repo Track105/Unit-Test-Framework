@@ -5,6 +5,23 @@
 #include <iostream>
 #include <cstdint>
 
+class Test {
+public:
+	int tmp;
+	float ftmp;
+	void print() {
+		std::cout << "Inside method 'print' from class 'Test'\n";
+	}
+	int sum(int a, int b) {
+		return a + b + tmp;
+	}
+	Test() : tmp(10), ftmp(12.45f) { };
+	Test(int a, float b) : tmp(a), ftmp(b) { }
+	Test operator+(const Test& test) {
+		return Test(tmp + test.tmp, ftmp + test.ftmp);
+	}
+};
+
 class Person {
 public:
     std::string mName;
@@ -161,6 +178,10 @@ Person newPerson(const int a, int b, Block& p, const double* d) {
 	return Person();
 }
 
+int multiply(int a, int b) {
+	return a * b;
+}
+
 int main() {
     std::vector<Building *> buildings;
     std::string command, buildingName, type, name;
@@ -282,6 +303,12 @@ int main() {
     }
     if (check == 0) { std::cout << "Nobody\n"; }
     else { printf("\n"); }
+    
+    for (uint64_t i = 0; i < 1000000000; i++) {
+	
+	}
+    
     return 0;
 }
+
 
