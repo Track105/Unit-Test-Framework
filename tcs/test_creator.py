@@ -13,6 +13,12 @@ mapper = {
 	',': 'Comma', ' new': 'New', ' delete': 'Delete', ' new[]': 'NewArr', ' delete[]': 'DeleteArr'
 }
 
+def get_random_string(length):
+    letters = string.ascii_lowercase
+    result_string = "".join(random.choice(letters) for i in range(length))
+    return result_string
+
+
 def test_seg_fault(out_file):
 	out_file.write("TEST(Segmentation, Fault) {\n    /* insert code */\n}\n\n")
 
@@ -28,9 +34,12 @@ def test_attribute(out_file, entities):
 	attributes = entities["ATTRIBUTE"]
 	for i in range(len(attributes)):
 		out_file.write("TEST(%sAttribute, %s) {\n\n" % (attributes[i].class_name, attributes[i].entity_name))
-		message = '"Clasa \'%s\' nu conține atributul \'%s\' sau tipul specificat în cerință este incorect!"' % (attributes[i].class_name, attributes[i].entity_name)
-		out_file.write("    ASSERT_ATTRIBUTE(%s, %s, %s);\n" % (attributes[i].class_name, attributes[i].entity_name, message))
+		message_attribute = '"Clasa \'%s\' nu conține atributul \'%s\'!"' % (attributes[i].class_name, attributes[i].entity_name)
+		message_signature = '"Clasa \'%s\' nu conține atributul \'%s\' cu tipul specificat în cerință!"' % (attributes[i].class_name, attributes[i].entity_name)
+		out_file.write("    ASSERT_ATTRIBUTE(%s, %s, %s);\n" % (attributes[i].class_name, attributes[i].entity_name, message_attribute))
+		out_file.write("    ASSERT_ATTRIBUTE_SIGNATURE(%s, %s, %s, %s);\n\n" % (attributes[i].class_name, attributes[i].entity_name, attributes[i].template_postfix, message_signature))
 		out_file.write("}\n\n")
+
 
 def test_class(out_file, entities):
 	classes = entities["CLASS"]
@@ -64,9 +73,12 @@ def test_function(out_file, entities):
 	functions = entities["FUNCTION"]
 	for i in range(len(functions)):
 		out_file.write("TEST(Function, %s) {\n\n" % (functions[i].entity_name))
-		message = '"Funcția \'%s\' nu există sau nu conține tipul specificat în cerință!"' % (functions[i].entity_name)
-		out_file.write("    ASSERT_FUNCTION(%s, %s) BEGIN {\n        /* insert code */\n    } END\n\n" % (functions[i].entity_name, message))
+		message_function = '"Funcția \'%s\' nu există!"' % (functions[i].entity_name)
+		message_signature = '"Funcția \'%s\' nu conține tipul specificat în cerință!"' % (functions[i].entity_name)
+		out_file.write("    ASSERT_FUNCTION(%s, %s);\n" % (functions[i].entity_name, message_function))
+		out_file.write("    ASSERT_FUNCTION_SIGNATURE(%s, %s, %s) BEGIN {\n        /* insert code */\n    } END\n\n" % (functions[i].entity_name, functions[i].template_postfix, message_signature))
 		out_file.write("}\n\n")
+
 	
 def test_inheritance(out_file, entities):
 	inheritances = entities["INHERITANCE"]
@@ -80,8 +92,10 @@ def test_method(out_file, entities):
 	methods = entities["METHOD"]
 	for i in range(len(methods)):
 		out_file.write("TEST(%sMethod, %s) {\n\n" % (methods[i].class_name, methods[i].entity_name))
-		message = '"Clasa \'%s\' nu conține metoda \'%s\' sau tipul specificat în cerință este incorect!"' % (methods[i].class_name, methods[i].entity_name)
-		out_file.write("    ASSERT_METHOD(%s, %s, %s);\n" % (methods[i].class_name, methods[i].entity_name, message))
+		message_method = '"Clasa \'%s\' nu conține metoda \'%s\'!"' % (methods[i].class_name, methods[i].entity_name)
+		message_signature = '"Clasa \'%s\' nu conține metoda \'%s\' cu tipul specificat în cerință!"' % (methods[i].class_name, methods[i].entity_name)
+		out_file.write("    ASSERT_METHOD(%s, %s, %s);\n" % (methods[i].class_name, methods[i].entity_name, message_method))
+		out_file.write("    ASSERT_METHOD_SIGNATURE(%s, %s, %s, %s);\n\n" % (methods[i].class_name, methods[i].entity_name, methods[i].template_postfix, message_signature))
 		out_file.write("}\n\n")
 	
 def test_operator(out_file, entities):
@@ -89,11 +103,14 @@ def test_operator(out_file, entities):
 	for i in range(len(operators)):
 		operator_symbol = operators[i].entity_name[8:]
 		operator_symbol_name = mapper[operator_symbol]
-		operator_identifier = "operator" + operator_symbol_name
-		out_file.write("TEST(%sOperator, %s) {\n\n" % (operators[i].class_name, operator_identifier))
-		message = '"Clasa \'%s\' nu conține operatorul \'%s\' sau tipul specificat în cerință este incorect!"' % (operators[i].class_name, operator_identifier)
-		out_file.write("    ASSERT_OPERATOR(%s, %s, %s);\n" % (operators[i].class_name, operator_identifier, message))
+		operator_template_postfix = "operator" + operator_symbol_name
+		out_file.write("TEST(%sOperator, %s) {\n\n" % (operators[i].class_name, operator_template_postfix))
+		message_operator = '"Clasa \'%s\' nu conține operatorul \'%s\'!"' % (operators[i].class_name, operator_symbol)
+		message_signature = '"Clasa \'%s\' nu conține operatorul \'%s\' cu tipul specificat în cerință!"' % (operators[i].class_name, operator_symbol)
+		out_file.write("    ASSERT_OPERATOR(%s, %s, %s);\n" % (operators[i].class_name, operator_template_postfix, message_operator))
+		out_file.write("    ASSERT_OPERATOR_SIGNATURE(%s, %s, %s, %s);\n\n" % (operators[i].class_name, operator_template_postfix, operators[i].template_postfix, message_signature))
 		out_file.write("}\n\n")
+
 
 def reflect_functions(out_file, entities):
 	signatures = set()
@@ -106,7 +123,8 @@ def reflect_functions(out_file, entities):
 		for j in range(len(classes)):
 			signatures[i].return_type = signatures[i].return_type.replace(classes[j].class_name, "GlobalFunctionsWrapper::" + classes[j].class_name)
 			signatures[i].args = signatures[i].args.replace(classes[j].class_name, "GlobalFunctionsWrapper::" + classes[j].class_name)
-		out_file.write("REFLECT_FUNCTION(%s, %s, %s);\n" % (signatures[i].entity_name, signatures[i].return_type, signatures[i].args))
+		out_file.write("REGISTER_FUNCTION(%s);\n" % (signatures[i].entity_name))
+		out_file.write("REGISTER_FUNCTION_SIGNATURE(%s, %s(Function::*)(%s), %s);\n" % (signatures[i].entity_name, signatures[i].return_type, signatures[i].args, signatures[i].template_postfix))
 	out_file.write("\n")
 	return entities
 	
@@ -115,29 +133,47 @@ def reflect_classes(out_file, entities):
 	methods = entities["METHOD"]
 	operators = entities["OPERATOR"]
 	classes = entities["CLASS"]
-	
+
 	for cls in classes:
 		
-		out_file.write("REFLECT_CLASS(%s) {\n" % (cls.class_name))
+		out_file.write("REGISTER_CLASS(%s) {\n" % (cls.class_name))
+		
+		unique_attributes = set()
+		for attribute in attributes:
+			if (cls.class_name == attribute.class_name):
+				unique_attributes.add(attribute.entity_name)
+		unique_attributes = list(unique_attributes)
+		
+		unique_methods = set()
+		for method in methods:
+			if (cls.class_name == method.class_name):
+				unique_methods.add(method.entity_name)
+		unique_methods = list(unique_methods)
+		
+		unique_operators = set()
+		for operator in operators:
+			if (cls.class_name == operator.class_name):
+				unique_operators.add(operator.entity_name)
+		unique_operators = list(unique_operators)
+		
+		for attribute in unique_attributes:
+			out_file.write("    REGISTER_ATTRIBUTE(%s);\n" % (attribute))
+		for method in unique_methods:
+			out_file.write("    REGISTER_METHOD(%s);\n" % (method))
+		for operator in unique_operators:
+			operator_identifier = "operator" + mapper[operator[8:]]
+			out_file.write("    REGISTER_OPERATOR(%s, %s);\n" % (operator, operator_identifier))
 		
 		for attribute in attributes:
 			if (cls.class_name == attribute.class_name):
-				out_file.write("    REFLECT_ATTRIBUTE(%s, %s);\n" % (attribute.entity_name, attribute.attr_type))
+				out_file.write("    REGISTER_ATTRIBUTE_SIGNATURE(%s, %s, %s);\n" % (attribute.entity_name, attribute.attr_type, attribute.template_postfix))
 		for method in methods:
 			if (cls.class_name == method.class_name):
-				if (method.args.split(",")[-1].strip() == "const"):
-					method.args = method.args[:method.args.rfind(",") + 1] + " /* Method Qualifiers */ " + method.args[method.args.rfind(",") + 1:]
-				else:
-					method.args = method.args + " /* Method Qualifiers */ "
-				out_file.write("    REFLECT_METHOD(%s, %s, %s);\n" % (method.entity_name, method.return_type, method.args))
+				out_file.write("    REGISTER_METHOD_SIGNATURE(%s, %s(Class::*)(%s) %s, %s);\n" % (method.entity_name, method.return_type, method.args, "const" if method.is_const_qualified == "True" else "", method.template_postfix))
 		for operator in operators:
 			if (cls.class_name == operator.class_name):
 				operator_identifier = "operator" + mapper[operator.entity_name[8:]]
-				if (operator.args.split(",")[-1].strip() == "const"):
-					operator.args = operator.args[:operator.args.rfind(",")] + " /* Operator Qualifiers */ " + operator.args[operator.args.rfind(","):]
-				else:
-					operator.args = operator.args + " /* Operator Qualifiers */ "
-				out_file.write("    REFLECT_OPERATOR(%s, %s, %s, %s);\n" % (operator.entity_name, operator_identifier, operator.return_type, operator.args))
+				out_file.write("    REGISTER_OPERATOR_SIGNATURE(%s, %s, %s(Class::*)(%s) %s, %s);\n" % (operator.entity_name, operator_identifier, operator.return_type, operator.args, "const" if operator.is_const_qualified == "True" else "", operator.template_postfix))
 		
 		out_file.write("};\n\n")
 	
@@ -161,7 +197,7 @@ entities = {
 
 class Object:
 	
-	def __init__(self, test_name, class_name=None, derived_class=None, attr_type=None, entity_name=None, args=None, return_type=None):
+	def __init__(self, test_name, class_name=None, derived_class=None, attr_type=None, entity_name=None, args=None, return_type=None, template_postfix=None, is_const_qualified=None):
 		self.test_name = test_name
 		self.class_name = class_name
 		self.derived_class = derived_class
@@ -169,6 +205,8 @@ class Object:
 		self.entity_name = entity_name
 		self.args = args
 		self.return_type = return_type
+		self.template_postfix = template_postfix
+		self.is_const_qualified=is_const_qualified
 
 	def __cmp__(self):
 		return object.__cmp__(self)
@@ -211,8 +249,11 @@ for line in lines:
 	return_type = components.get("RETURN")
 	return_type = "" if (return_type == "None" or return_type == None) else return_type
 	return_type = return_type.replace("virtual ", "")
+	is_const_qualified = components.get("CONST")
+	is_const_qualified = "" if (is_const_qualified == None) else is_const_qualified
+	template_postfix = get_random_string(8)
 	entities[test].append(Object(test_name=test, class_name=class_name, derived_class=derived_class, attr_type=attr_type, \
-								 entity_name=entity_name, args=args, return_type=return_type))	
+								 entity_name=entity_name, args=args, return_type=return_type, template_postfix=template_postfix, is_const_qualified=is_const_qualified))	
 		
 test_file = open(TEST_FILE, 'a')
 test_file.truncate(0)
